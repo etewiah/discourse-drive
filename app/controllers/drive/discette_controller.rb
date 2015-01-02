@@ -26,6 +26,34 @@ require 'current_user'
     end
 
 
+
+    def discette_topics
+      subdomain = request.subdomain.downcase
+      category = Category.where(:name_lower => subdomain).first
+      unless category
+        return  render json: { category_flag: 'unclaimed'}
+      end
+      discette_topics = category.topics.where("visible")
+      about_topic = category.topic
+      # discette_topics =  Topic.where("deleted_at" => nil)
+      # .where("visible")
+      # .where("archetype <> ?", Archetype.private_message)
+      # .where(:category_id => category.id)
+      # # .limit(10)
+
+      geo_topic_list_serialized = serialize_data(discette_topics, Drive::DiscetteTopicItemSerializer)
+
+      # render_serialized(geo_topic_list, MapTopic::LocationTopicListSerializer,  root: 'geo_topic_list')
+      return render_json_dump({
+        "discette_topics" => geo_topic_list_serialized,
+        "about_topic" => about_topic.as_json,
+        "category" => category.as_json
+      })
+
+    end
+
+
+
     def preload_drive_data
       store_preloaded("site", Site.json_for(guardian))
       store_preloaded("siteSettings", SiteSetting.client_settings_json)

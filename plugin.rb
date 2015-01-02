@@ -22,11 +22,11 @@ end
 
 
 after_initialize do
-  ApplicationController.class_eval do
-    def set_layout
-      use_crawler_layout? ? 'crawler' : 'drive'
-    end
-  end
+  # ApplicationController.class_eval do
+  #   def set_layout
+  #     use_crawler_layout? ? 'crawler' : 'drive'
+  #   end
+  # end
 
 
   module ApplicationControllerExtender
@@ -38,14 +38,19 @@ after_initialize do
     private
 
     def redirect_discette
+      # The idea here is to check if we have a request to a registered discette subdomain
+      # which would otherwise get handled by the main discourse app
+      # binding.pry 
+
+      return if ( (request.format && request.format.json?) || params[:controller] == 'discette')
       subdomain = request.subdomain
-      # binding.pry
-      if params[:controller] != 'discette'
+      binding.pry
+      # if params[:controller] != 'discette'
         if is_discette_subdomain subdomain
           redirect_to "/home"
         end
         # unless subdomain.empty?
-      end
+      # end
     end
 
     def is_discette_subdomain subdomain
