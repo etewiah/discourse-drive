@@ -3,6 +3,101 @@
 <head>
   <title>Drive</title>
 
+  <script type="text/javascript">
+
+/**
+  We can insert data into the PreloadStore when the document is loaded.
+  The data can be accessed once by a key, after which it is removed
+
+  @class PreloadStore
+**/
+window.PreloadStore = {
+  data: {},
+
+  /**
+    Store an object in the store
+
+    @method store
+    @param {String} key the key to store the object with
+    @param {String} value the object we're inserting into the store
+  **/
+  store: function(key, value) {
+    this.data[key] = value;
+  },
+
+  /**
+    To retrieve a key, you provide the key you want, plus a finder to load
+    it if the key cannot be found. Once the key is used once, it is removed
+    from the store.
+    So, for example, you can't load a preloaded topic more than once.
+
+    @method getAndRemove
+    @param {String} key the key to look up the object with
+    @param {function} finder a function to find the object with
+    @returns {Promise} a promise that will eventually be the object we want.
+  **/
+  getAndRemove: function(key, finder) {
+    if (this.data[key]) {
+      var promise = Em.RSVP.resolve(this.data[key]);
+      delete this.data[key];
+      return promise;
+    }
+
+    if (finder) {
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        var result = finder();
+
+        // If the finder returns a promise, we support that too
+        if (result.then) {
+          result.then(function(result) {
+            return resolve(result);
+          }, function(result) {
+            return reject(result);
+          });
+        } else {
+          resolve(result);
+        }
+      });
+    }
+
+    return Ember.RSVP.resolve(null);
+  },
+
+  /**
+    If we are sure it's preloaded, we don't have to supply a finder.
+    Just returns undefined if it's not in the store.
+
+    @method get
+    @param {String} key the key to look up the object with
+    @returns {Object} the object from the store
+  **/
+  "get": function(key) {
+    return this.data[key];
+  },
+
+  /**
+    Removes the stored value if the key exists
+
+    @method remove
+    @param {String} key the key to remove
+  **/
+  remove: function(key) {
+    if (this.data[key]) delete this.data[key];
+  },
+
+  /**
+    Resets the contents of the store. Used in testing.
+
+  **/
+  reset: function() {
+    this.data = {};
+  }
+
+};
+
+  </script>
+
+
     <base href="/">
 <meta name="discette/config/environment" content="%7B%22modulePrefix%22%3A%22discette%22%2C%22environment%22%3A%22development%22%2C%22baseURL%22%3A%22/%22%2C%22locationType%22%3A%22auto%22%2C%22EmberENV%22%3A%7B%22FEATURES%22%3A%7B%7D%7D%2C%22APP%22%3A%7B%22LOG_ACTIVE_GENERATION%22%3Atrue%2C%22LOG_VIEW_LOOKUPS%22%3Atrue%7D%2C%22contentSecurityPolicyHeader%22%3A%22Content-Security-Policy-Report-Only%22%2C%22contentSecurityPolicy%22%3A%7B%22default-src%22%3A%22%27none%27%22%2C%22script-src%22%3A%22%27self%27%20%27unsafe-eval%27%22%2C%22font-src%22%3A%22%27self%27%22%2C%22connect-src%22%3A%22%27self%27%22%2C%22img-src%22%3A%22%27self%27%22%2C%22style-src%22%3A%22%27self%27%22%2C%22media-src%22%3A%22%27self%27%22%7D%2C%22exportApplicationGlobal%22%3Atrue%7D">
 
@@ -16,6 +111,30 @@
 <body>
 
 <%= yield %>
+
+    <% unless current_user %>
+      <form id='hidden-login-form' method="post" action="<%=login_path%>" style="display: none;">
+        <input name="username" type="text"     id="signin_username">
+        <input name="password" type="password" id="signin_password">
+        <input name="redirect" type="hidden">
+        <input type="submit" id="signin-button" value="<%= t 'log_in' %>">
+      </form>
+    <% end %>
+
+    <%- if @preloaded.present? %>
+      <script>
+      <%- @preloaded.each do |key, json| %>
+        PreloadStore.store("<%= key %>",<%= escape_unicode(json) %>);
+      <% end %>
+      </script>
+    <%- end %>
+
+<!-- data below -->
+
+    <%= yield :data %>
+
+    <%= render_google_analytics_code %>
+
 
 </body>
 </html>

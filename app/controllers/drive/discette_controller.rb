@@ -1,5 +1,9 @@
 module Drive
-  class DiscetteController < Drive::ApplicationController
+require 'current_user'
+
+  class DiscetteController < ApplicationController
+    # if I inherit from my own App controller as below, I lose the useful helpers from discourse (such as current_user) in templates
+    # Drive::ApplicationController
     include CurrentUser
     # before_action :get_section_from_subdomain
     # before_filter :preload_drive_data
@@ -11,7 +15,10 @@ module Drive
     # hardly gets hit though...
     # TODO - render useful serverside content for search engine etc..
     def landing
-      # binding.pry
+      # binding.pryß
+
+      store_preloaded("siteSettings", SiteSetting.client_settings_json)
+
       render layout: "drive"
       # subdomain = request.subdomain
       # render json: { status: 'ok', subdomain: subdomain}
@@ -24,6 +31,16 @@ module Drive
       store_preloaded("siteSettings", SiteSetting.client_settings_json)
       store_preloaded("customHTML", custom_html_json)
       store_preloaded("banner", banner_json)
+    end
+
+
+
+    def store_preloaded(key, json)
+      @preloaded ||= {}
+      # I dislike that there is a gsub as opposed to a gsub!
+      #  but we can not be mucking with user input, I wonder if there is a way
+      #  to inject this safty deeper in the library or even in AM serializer
+      @preloaded[key] = json.gsub("</", "<\\/")
     end
 
   end
