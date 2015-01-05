@@ -5,6 +5,5 @@ Drive::Engine.routes.draw do
 
   get "/discette_topics" => "discette#discette_topics"
 
-
-  get "*path" => "discette#landing"
+  # get "*path" => "discette#landing"
 end

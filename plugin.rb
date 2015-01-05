@@ -31,8 +31,8 @@ after_initialize do
 
   module ApplicationControllerExtender
     def self.included(klass)
-      klass.send(:before_filter, :redirect_discette)
-      # klass.append_before_filter :redirect_discette
+      # klass.send(:before_filter, :redirect_discette)
+      klass.prepend_before_filter :redirect_discette
     end
 
     private
@@ -40,16 +40,16 @@ after_initialize do
     def redirect_discette
       # The idea here is to check if we have a request to a registered discette subdomain
       # which would otherwise get handled by the main discourse app
-      # binding.pry 
 
-      return if ( (request.format && request.format.json?) || params[:controller] == 'discette')
+      # for json requests or if we're already in discette controller, exit
+      return if ( (request.format && request.format.json?) || params[:controller] == 'drive/discette')
       subdomain = request.subdomain
-      binding.pry
+      # binding.pry
       # if params[:controller] != 'discette'
-        if is_discette_subdomain subdomain
-          redirect_to "/home"
-        end
-        # unless subdomain.empty?
+      if is_discette_subdomain subdomain
+        redirect_to "/home"
+      end
+      # unless subdomain.empty?
       # end
     end
 
