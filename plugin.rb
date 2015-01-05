@@ -55,11 +55,16 @@ after_initialize do
 
     def is_discette_subdomain subdomain
       # TODO - check discette list
-      if subdomain.empty?
-        return false
-      else
+      if subdomain == "madrid"
         return true
+      else
+        return false
       end
+      # if subdomain.empty?
+      #   return false
+      # else
+      #   return true
+      # end
     end
   end
   ApplicationController.send(:include, ApplicationControllerExtender)
