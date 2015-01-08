@@ -29,7 +29,7 @@ module Drive
     # hardly gets hit though...
     # TODO - render useful serverside content for search engine etc..
     def landing
-      # subdomain = request.subdomain.downcase
+      @subdomain = request.subdomain.downcase || "example"
       # category = Category.where(:name_lower => subdomain).first
       # if category
 
