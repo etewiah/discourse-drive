@@ -44,6 +44,9 @@ module Drive
       # end
 
       store_preloaded("siteSettings", SiteSetting.client_settings_json)
+      if current_user
+        store_preloaded("currentUser", MultiJson.dump(CurrentUserSerializer.new(current_user, scope: guardian, root: false)))
+      end
 
       render layout: "drive"
     end
