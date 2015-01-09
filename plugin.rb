@@ -55,8 +55,8 @@ after_initialize do
 
     def is_discette_subdomain subdomain
       # TODO - check discette list
-      if subdomain == "madrid"
-      if %w(madrid madrid2 example).include? subdomain.downcase
+      # if subdomain == "madrid"
+      if (%w(madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
         return true
       else
         return false
