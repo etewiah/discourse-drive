@@ -44,28 +44,19 @@ after_initialize do
       # for json requests or if we're already in discette controller, exit
       return if ( (request.format && request.format.json?) || params[:controller] == 'drive/discette')
       subdomain = request.subdomain
-      # binding.pry
-      # if params[:controller] != 'discette'
+
       if is_discette_subdomain subdomain
         redirect_to "/home"
       end
-      # unless subdomain.empty?
-      # end
     end
 
     def is_discette_subdomain subdomain
       # TODO - check discette list
-      # if subdomain == "madrid"
-      if (%w(madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
+      if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
         return true
       else
         return false
       end
-      # if subdomain.empty?
-      #   return false
-      # else
-      #   return true
-      # end
     end
   end
   ApplicationController.send(:include, ApplicationControllerExtender)

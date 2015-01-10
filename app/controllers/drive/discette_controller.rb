@@ -30,6 +30,12 @@ module Drive
     # TODO - render useful serverside content for search engine etc..
     def landing
       @subdomain = request.subdomain.downcase || "example"
+
+      # TODO - check discette list
+
+      unless (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? @subdomain.downcase)
+        @subdomain = "example"
+      end
       # category = Category.where(:name_lower => subdomain).first
       # if category
 
@@ -59,7 +65,7 @@ module Drive
       unless category
         return  render json: { category_flag: 'unclaimed'}
       end
-      discette_topics = category.topics.where("visible")
+      discette_topics = category.topics.where("deleted_at" => nil).where("visible").where("archetype" => "discette")
       about_topic = category.topic
       # discette_topics =  Topic.where("deleted_at" => nil)
       # .where("visible")
