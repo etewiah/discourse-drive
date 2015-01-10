@@ -39,12 +39,15 @@ after_initialize do
 
     def redirect_discette
       # The idea here is to check if we have a request to a registered discette subdomain
-      # which would otherwise get handled by the main discourse app
+      # and ensure it does not get handled by the main discourse app
+
+      # right now I only care about redirecting the root
+      return if (request.path != "/")
 
       # for json requests or if we're already in discette controller, exit
-      return if ( (request.format && request.format.json?) || params[:controller] == 'drive/discette')
-      subdomain = request.subdomain
+      # return if ( (request.format && request.format.json?) || params[:controller] == 'drive/discette')
 
+      subdomain = request.subdomain
       if is_discette_subdomain subdomain
         redirect_to "/home"
       end
