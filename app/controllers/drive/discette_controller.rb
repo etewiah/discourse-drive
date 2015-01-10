@@ -6,6 +6,7 @@ module Drive
     # Drive::ApplicationController
     include CurrentUser
 
+    skip_before_filter :verify_authenticity_token, only: [:enter]
 
     skip_before_filter :set_current_user_for_logs
     skip_before_filter :set_locale
@@ -24,6 +25,36 @@ module Drive
 
     # below check seems to redirect to main domain if user not authenticated
     # before_action :ensure_logged_in, only: [:claim_section]
+
+
+    # This method just redirects to a given url.
+    # It's used when an ajax login was successful but we want the browser to see
+    # a post of a login form so that it offers to remember your password.
+    def enter
+      params.delete(:username)
+      params.delete(:password)
+
+      destination = "/"
+      if params[:redirect].present?
+        destination = params[:redirect]
+      end
+
+      # if params[:redirect].present? && !params[:redirect].match(login_path)
+      #   begin
+      #     forum_uri = URI(Discourse.base_url)
+      #     uri = URI(params[:redirect])
+      #     if uri.path.present? &&
+      #         (uri.host.blank? || uri.host == forum_uri.host) &&
+      #         uri.path !~ /\./
+      #       destination = uri.path
+      #     end
+      #   rescue URI::InvalidURIError
+      #     # Do nothing if the URI is invalid
+      #   end
+      # end
+
+      redirect_to destination
+    end
 
     # end point for routes that are only implemented client side
     # hardly gets hit though...
