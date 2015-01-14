@@ -30,6 +30,9 @@ module Drive
     # This method just redirects to a given url.
     # It's used when an ajax login was successful but we want the browser to see
     # a post of a login form so that it offers to remember your password.
+
+    # For discette I need to overide it the default discourse implementation assumes
+    # everything happens at one root domain.  I want to stay in the same subdomain as I authenticated in
     def enter
       params.delete(:username)
       params.delete(:password)
@@ -67,18 +70,6 @@ module Drive
       unless (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? @subdomain.downcase)
         @subdomain = "example"
       end
-      # category = Category.where(:name_lower => subdomain).first
-      # if category
-
-      #   discette_topics = category.topics.where("visible")
-      #   about_topic = category.topic
-
-      #   geo_topic_list_serialized = serialize_data(discette_topics, Drive::DiscetteTopicItemSerializer)
-
-      #   store_preloaded("discette_topics", geo_topic_list_serialized.to_json)
-      #   store_preloaded("about_topic", about_topic.to_json)
-      #   store_preloaded("category", category.to_json)
-      # end
 
       store_preloaded("siteSettings", SiteSetting.client_settings_json)
       if current_user
@@ -91,29 +82,49 @@ module Drive
 
 
     def discette_topics
+      # TODO - allow category for subdomain to be configurable
       subdomain = request.subdomain.downcase
       category = Category.where(:name_lower => subdomain).first
       unless category
         return  render json: { category_flag: 'unclaimed'}
       end
       discette_topics = category.topics.where("deleted_at" => nil).where("visible").where("archetype" => "discette")
-      about_topic = category.topic
-      # discette_topics =  Topic.where("deleted_at" => nil)
-      # .where("visible")
-      # .where("archetype <> ?", Archetype.private_message)
-      # .where(:category_id => category.id)
-      # # .limit(10)
+      # about_topic = category.topic
 
       geo_topic_list_serialized = serialize_data(discette_topics, Drive::DiscetteTopicItemSerializer)
 
       # render_serialized(geo_topic_list, MapTopic::LocationTopicListSerializer,  root: 'geo_topic_list')
       return render_json_dump({
                                 "discette_topics" => geo_topic_list_serialized,
-                                "about_topic" => about_topic.as_json,
+                                # "about_topic" => about_topic.as_json,
                                 "category" => category.as_json
       })
 
     end
+
+
+    def discette_about
+      # TODO - allow category for subdomain to be configurable
+      subdomain = request.subdomain.downcase
+      category = Category.where(:name_lower => subdomain).first
+      unless category
+        return  render json: { category_flag: 'unclaimed'}
+      end
+      about_topic = category.topic
+
+      opts = {}
+      begin
+        @topic_view = TopicView.new(about_topic.id, current_user, opts)
+      rescue Discourse::NotFound
+        topic = Topic.find_by(slug: params[:id].downcase) if params[:id]
+        raise Discourse::NotFound unless topic
+        redirect_to_correct_topic(topic, opts[:post_number]) && return
+      end
+
+      topic_view_serializer = TopicViewSerializer.new(@topic_view, scope: guardian, root: false, include_raw: !!params[:include_raw])
+      return  render_json_dump(topic_view_serializer)
+    end
+
 
 
 
