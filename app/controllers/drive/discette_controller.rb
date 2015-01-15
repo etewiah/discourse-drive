@@ -63,12 +63,14 @@ module Drive
     # hardly gets hit though...
     # TODO - render useful serverside content for search engine etc..
     def landing
-      @subdomain = request.subdomain.downcase || "example"
+      subdomain = request.subdomain.downcase || "default"
+      section = Drive::Section.where(:subdomain_lower => subdomain).first
 
-      # TODO - check discette list
-
-      unless (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? @subdomain.downcase)
-        @subdomain = "example"
+      # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
+      if section
+        @discette_name = section.discette_name
+      else
+        @discette_name = "madrid"
       end
 
       store_preloaded("siteSettings", SiteSetting.client_settings_json)
