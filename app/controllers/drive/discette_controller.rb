@@ -26,6 +26,11 @@ module Drive
     # below check seems to redirect to main domain if user not authenticated
     # before_action :ensure_logged_in, only: [:claim_section]
 
+    def all
+      discettes = Drive::Discette.all
+      return render json: discettes.as_json, root: false
+    end
+
 
     # This method just redirects to a given url.
     # It's used when an ajax login was successful but we want the browser to see
@@ -57,28 +62,6 @@ module Drive
       # end
 
       redirect_to destination
-    end
-
-    # end point for routes that are only implemented client side
-    # hardly gets hit though...
-    # TODO - render useful serverside content for search engine etc..
-    def landing
-      subdomain = request.subdomain.downcase || "default"
-      section = Drive::Section.where(:subdomain_lower => subdomain).first
-
-      # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
-      if section
-        @discette_name = section.discette_name
-      else
-        @discette_name = "madrid"
-      end
-
-      store_preloaded("siteSettings", SiteSetting.client_settings_json)
-      if current_user
-        store_preloaded("currentUser", MultiJson.dump(CurrentUserSerializer.new(current_user, scope: guardian, root: false)))
-      end
-
-      render layout: "drive"
     end
 
 
