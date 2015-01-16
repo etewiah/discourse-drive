@@ -48,7 +48,6 @@ module Drive
       new_section = Drive::Section.where(:subdomain_lower => params[:subdomain].downcase).first_or_initialize
       section_discette = Drive::Discette.find(params[:discette][:id])
       section_category = Category.find(params[:category][:id])
-      binding.pry
       new_section.name = params[:name]
       # new_section.discette_name = params[:discette_name]
       new_section.discette = section_discette
