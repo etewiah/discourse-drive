@@ -32,18 +32,27 @@ module Drive
     def all
       sections = Drive::Section.all
       discettes = Drive::Discette.all
+      sections_serialized = serialize_data(sections, Drive::SectionSerializer)
+
+# temporary workaround : return all categories for section mgmt
+      categories = Category.all
       # return render json: sections.as_json, root: false
       return render_json_dump({
-                                "sections" => sections.as_json,
-                                "discettes" => discettes.as_json
+                                "sections" => sections_serialized,
+                                "discettes" => discettes.as_json,
+                                "categories" => categories.as_json
       })
     end
 
     def create
-      # binding.pry
       new_section = Drive::Section.where(:subdomain_lower => params[:subdomain].downcase).first_or_initialize
+      section_discette = Drive::Discette.find(params[:discette][:id])
+      section_category = Category.find(params[:category][:id])
+      binding.pry
       new_section.name = params[:name]
-      new_section.discette_name = params[:discette_name]
+      # new_section.discette_name = params[:discette_name]
+      new_section.discette = section_discette
+      new_section.category = section_category
       if new_section.save!
         render json: new_section.as_json
       else
