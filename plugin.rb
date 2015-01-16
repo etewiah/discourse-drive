@@ -54,8 +54,10 @@ after_initialize do
     end
 
     def is_discette_subdomain subdomain
-      # TODO - check discette list
-      if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
+      section = Drive::Section.where(:subdomain_lower => subdomain).first
+
+      # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
+      if section
         return true
       else
         return false

@@ -107,8 +107,9 @@ module Drive
       subdomain = request.subdomain.downcase || "default"
       section = Drive::Section.where(:subdomain_lower => subdomain).first
       # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
-      if section
-        @discette_name = section.discette_name
+      if section && section.discette
+        # TODO - add validation to ensure sections always have a discette
+        @discette_name = section.discette.slug
       else
         @discette_name = "default"
       end
@@ -126,35 +127,33 @@ module Drive
 
 
     def topics
-      # TODO - allow category for subdomain to be configurable
       subdomain = request.subdomain.downcase
-      category = Category.where(:name_lower => subdomain).first
-      unless category
+      section = Drive::Section.where(:subdomain_lower => subdomain).first
+      # category = Category.where(:name_lower => subdomain).first
+      unless section && section.category
         return  render json: { category_flag: 'unclaimed'}
       end
-      discette_topics = category.topics.where("deleted_at" => nil).where("visible").where("archetype" => "discette")
-      # about_topic = category.topic
+      discette_topics = section.category.topics.where("deleted_at" => nil).where("visible").where("archetype" => "discette")
 
       geo_topic_list_serialized = serialize_data(discette_topics, Drive::DiscetteTopicItemSerializer)
 
-      # render_serialized(geo_topic_list, MapTopic::LocationTopicListSerializer,  root: 'geo_topic_list')
+      # TODO - render serialized section instead of category (need to do this after I update ember app)
       return render_json_dump({
                                 "discette_topics" => geo_topic_list_serialized,
-                                # "about_topic" => about_topic.as_json,
-                                "category" => category.as_json
+                                "category" => section.category.as_json
       })
 
     end
 
 
     def about
-      # TODO - allow category for subdomain to be configurable
       subdomain = request.subdomain.downcase
-      category = Category.where(:name_lower => subdomain).first
-      unless category
+      section = Drive::Section.where(:subdomain_lower => subdomain).first
+      # category = Category.where(:name_lower => subdomain).first
+      unless section && section.category
         return  render json: { category_flag: 'unclaimed'}
       end
-      about_topic = category.topic
+      about_topic = section.category.topic
 
       opts = {}
       begin
