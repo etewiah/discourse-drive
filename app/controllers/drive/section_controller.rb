@@ -102,7 +102,7 @@ module Drive
       if section
         @discette_name = section.discette_name
       else
-        @discette_name = "madrid"
+        @discette_name = "default"
       end
       # The @discette_name is used by the layout to decide which javascript (effectively which ember app)
       # to use
