@@ -31,7 +31,33 @@ module Drive
 
     def all
       sections = Drive::Section.all
-      return render json: sections.as_json, root: false
+      discettes = Drive::Discette.all
+      # return render json: sections.as_json, root: false
+      return render_json_dump({
+                                "sections" => sections.as_json,
+                                "discettes" => discettes.as_json
+      })
+    end
+
+    def create
+      # binding.pry
+      new_section = Drive::Section.where(:subdomain_lower => params[:subdomain].downcase).first_or_initialize
+      new_section.name = params[:name]
+      new_section.discette_name = params[:discette_name]
+      if new_section.save!
+        render json: new_section.as_json
+      else
+        render status: :bad_request, json: {"error" => {"message" => "Error creating section"}}
+      end
+    end
+
+    def destroy
+      section = Drive::Section.find(params[:id])
+      if section.destroy!
+        render json: { success: 'OK' }
+      else
+        render status: :bad_request, json: {"error" => {"message" => "Error deleting section"}}        
+      end
     end
 
 
@@ -72,13 +98,14 @@ module Drive
     def landing
       subdomain = request.subdomain.downcase || "default"
       section = Drive::Section.where(:subdomain_lower => subdomain).first
-
       # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
       if section
         @discette_name = section.discette_name
       else
         @discette_name = "madrid"
       end
+      # The @discette_name is used by the layout to decide which javascript (effectively which ember app)
+      # to use
 
       store_preloaded("siteSettings", SiteSetting.client_settings_json)
       if current_user

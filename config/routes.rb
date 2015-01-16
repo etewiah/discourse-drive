@@ -13,6 +13,14 @@ Drive::Engine.routes.draw do
 
   get "/drive/section/about" => "section#about"
 
+  get "/drive/discettes" => "discette#all"
+  get "/drive/sections" => "section#all"
+
+  post "/drive/discette/create" => "discette#create"
+  post "/drive/section/create" => "section#create"
+  delete "/drive/discette/:id" => "discette#destroy"
+  delete "/drive/section/:id" => "section#destroy"
+
   # TODO - use above instead of below from client side:
   # get "/" => "discette#landing"
   # get "/d" => "discette#landing"

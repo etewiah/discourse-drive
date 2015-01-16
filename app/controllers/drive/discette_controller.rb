@@ -31,6 +31,28 @@ module Drive
       return render json: discettes.as_json, root: false
     end
 
+    def create
+      # binding.pry
+      new_discette = Drive::Discette.where(:slug => params[:slug].downcase).first_or_initialize
+      new_discette.name = params[:name]
+      new_discette.description = params[:description]
+      if new_discette.save!
+        render json: new_discette.as_json
+      else
+        render status: :bad_request, json: {"error" => {"message" => "Error creating discette"}}
+      end
+    end
+
+    def destroy
+      discette = Drive::Discette.find(params[:id])
+      if discette.destroy!
+        render json: { success: 'OK' }
+      else
+        render status: :bad_request, json: {"error" => {"message" => "Error deleting discette"}}        
+      end
+    end
+
+
 
     # This method just redirects to a given url.
     # It's used when an ajax login was successful but we want the browser to see
