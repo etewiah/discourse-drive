@@ -110,12 +110,18 @@ module Drive
       if section && section.discette
         # TODO - add validation to ensure sections always have a discette
         @discette_name = section.discette.slug
-      else
-        @discette_name = "default"
-      end
       # The @discette_name is used by the layout to decide which javascript (effectively which ember app)
       # to use
+        current_section = section.as_json
+      else
+        @discette_name = "default"
+        current_section = {name: "Unknown"}
+      end
 
+
+      current_section["rootUrl"] = "http://klavado.com"
+
+      store_preloaded("currentSection", current_section.to_json)
       store_preloaded("siteSettings", SiteSetting.client_settings_json)
       if current_user
         store_preloaded("currentUser", MultiJson.dump(CurrentUserSerializer.new(current_user, scope: guardian, root: false)))
@@ -131,7 +137,7 @@ module Drive
       section = Drive::Section.where(:subdomain_lower => subdomain).first
       # category = Category.where(:name_lower => subdomain).first
       unless section && section.category
-        return  render json: { category_flag: 'unclaimed'}
+        return  render json: { section_status: 'unclaimed'}
       end
       discette_topics = section.category.topics.where("deleted_at" => nil).where("visible").where("archetype" => "discette")
 
@@ -151,7 +157,7 @@ module Drive
       section = Drive::Section.where(:subdomain_lower => subdomain).first
       # category = Category.where(:name_lower => subdomain).first
       unless section && section.category
-        return  render json: { category_flag: 'unclaimed'}
+        return  render json: { section_status: 'unclaimed'}
       end
       about_topic = section.category.topic
 
