@@ -45,13 +45,54 @@ module Drive
     end
 
     def create
-      new_section = Drive::Section.where(:subdomain_lower => params[:subdomain].downcase).first_or_initialize
-      section_discette = Drive::Discette.find(params[:discette][:id])
-      section_category = Category.find(params[:category][:id])
+      return render_json_error('unauthenticated') unless current_user
+      # 
+      if params[:subdomain]
+        subdomain_lower = params[:subdomain].downcase
+      else
+        subdomain_lower = request.subdomain.downcase
+      end
+      # subdomain_lower = params[:subdomain].downcase || request.subdomain.downcase
+
+      # TODO - figure out r/n b/n sectionname and catname
+      # guardian.ensure_can_create!(Category)
+
+      # position = category_params.delete(:position)
+
+      # section_category = Category.create(category_params.merge(user: current_user))
+
+      section_category = Category.where(:name => subdomain_lower).first_or_initialize
+      unless section_category.user
+        section_category.user_id = current_user.id
+        section_category.description = params[:description]
+      end
+      return render_json_error(section_category) unless section_category.save
+      section_category.topic.visible = false
+      section_category.topic.save
+
+      # section_category.move_to(position.to_i) if position
+      # render_serialized(section_category, CategorySerializer)
+
+
+      new_section = Drive::Section.where(:subdomain_lower => subdomain_lower).first_or_initialize
+      if params[:discette]
+        section_discette = Drive::Discette.find(params[:discette][:id])        
+      else
+        # TODO - extract method for retrieving default discette
+        section_discette = Drive::Discette.where(:slug => 'ed').first
+      end
+
       new_section.name = params[:name]
-      # new_section.discette_name = params[:discette_name]
       new_section.discette = section_discette
       new_section.category = section_category
+      return render_json_error(new_section) unless new_section.save
+
+      section_owner = new_section.section_users.where(:user_id => current_user.id).first_or_initialize
+      # section_owner.user_id = current_user.id
+      # TODO - use flag tzu for below:
+      section_owner.role = "owner"
+      section_owner.save!
+
       if new_section.save!
         render json: new_section.as_json
       else
