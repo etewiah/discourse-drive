@@ -39,8 +39,8 @@ module Drive
       # return render json: sections.as_json, root: false
       return render_json_dump({
                                 "sections" => sections_serialized,
-                                "discettes" => discettes.as_json,
-                                "categories" => categories.as_json
+                                # "discettes" => discettes.as_json,
+                                # "categories" => categories.as_json
       })
     end
 
