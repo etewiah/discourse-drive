@@ -57,7 +57,8 @@ module Drive
       unless section_category.user
         section_category.user_id = current_user.id
         section_category.description = params[:description]
-        section_category.read_restricted = true
+        # in future might set this below to secure sections:
+        # section_category.read_restricted = true
       end
       return render_json_error(section_category) unless section_category.save
       section_category.topic.visible = false

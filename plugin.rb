@@ -28,6 +28,48 @@ after_initialize do
   #   end
   # end
 
+  # module TopicPatch
+  #   extend ActiveSupport::Concern
+
+  #   included do
+  #     after_create :hide_discette_topics
+  #     # has_ony :activity_stream_event
+  #   end
+
+
+  #   module InstanceMethods
+  #     def hide_discette_topics
+  #       binding.pry
+  #       if self.archetype == "discette"
+  #         self.visible = false
+  #       end
+  #     end
+  #   end
+
+  # end
+
+  # Topic.send(:include, TopicPatch)
+
+  # based on this: http://stackoverflow.com/questions/10761059/re-open-an-activerecord-model-thats-provided-by-a-gem
+
+  module TopicExtender
+    module InstanceMethods
+      private
+      def hide_discette_topics
+        if self.archetype == "discette"
+          self.visible = false
+        end
+      end
+    end
+
+    def self.included(receiver)
+      receiver.send :include, InstanceMethods
+      receiver.class_eval do
+        after_create :hide_discette_topics
+      end
+    end
+  end
+  Topic.send(:include, TopicExtender)
 
   module ApplicationControllerExtender
     def self.included(klass)
