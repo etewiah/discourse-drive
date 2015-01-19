@@ -12,6 +12,7 @@ Drive::Engine.routes.draw do
   get "/drive/section/topics" => "section#topics"
 
   get "/drive/section/about" => "section#about"
+  get "/drive/section/current" => "section#current"
 
   get "/drive/discettes" => "discette#all"
   get "/drive/sections" => "section#all"

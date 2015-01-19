@@ -39,7 +39,7 @@ module Drive
       # return render json: sections.as_json, root: false
       return render_json_dump({
                                 "sections" => sections_serialized,
-                                # "discettes" => discettes.as_json,
+                                "discettes" => discettes.as_json,
                                 # "categories" => categories.as_json
       })
     end
@@ -142,7 +142,6 @@ module Drive
     end
 
     # end point for routes that are only implemented client side
-    # hardly gets hit though...
     # TODO - render useful serverside content for search engine etc..
     def landing
       subdomain = request.subdomain.downcase || "default"
@@ -160,7 +159,7 @@ module Drive
       end
 
 
-      current_section["rootUrl"] = "http://klavado.com"
+      current_section["root_url"] = "http://klavado.com"
 
       store_preloaded("currentSection", current_section.to_json)
       store_preloaded("siteSettings", SiteSetting.client_settings_json)
@@ -215,7 +214,28 @@ module Drive
       return  render_json_dump(topic_view_serializer)
     end
 
+    def current
+      subdomain = request.subdomain.downcase
+      section = Drive::Section.where(:subdomain_lower => subdomain).first
+      # category = Category.where(:name_lower => subdomain).first
+      unless section && section.category
+        return  render json: { section_status: 'unclaimed'}
+      end
+      # about_topic = section.category.topic
 
+      # opts = {}
+      # begin
+      #   @topic_view = TopicView.new(about_topic.id, current_user, opts)
+      # rescue Discourse::NotFound
+      #   topic = Topic.find_by(slug: params[:id].downcase) if params[:id]
+      #   raise Discourse::NotFound unless topic
+      #   redirect_to_correct_topic(topic, opts[:post_number]) && return
+      # end
+      topic_view_serializer = TopicViewSerializer.new(@topic_view, scope: guardian, root: false, include_raw: !!params[:include_raw])
+
+      section_serialized = serialize_data(section, Drive::SectionSerializer)
+      return  render_json_dump(section_serialized)
+    end
 
 
     def preload_drive_data
