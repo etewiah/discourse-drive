@@ -28,16 +28,38 @@ after_initialize do
   #   end
   # end
 
-  # module TopicPatch
-  #   extend ActiveSupport::Concern
+  module TopicPatch
+    extend ActiveSupport::Concern
 
-  #   included do
-  #     after_create :hide_discette_topics
-  #     # has_ony :activity_stream_event
-  #   end
+    included do
+      # when I tried with before_create, I got errors from posts_controller l88
+      after_create :hide_discette_topics
+      # has_ony :activity_stream_event
+    end
 
 
+    module InstanceMethods
+      def hide_discette_topics
+        if self.archetype == "discette"
+          self.visible = false
+          self.save
+        end
+      end
+    end
+
+    def self.included(receiver)
+      receiver.send :include, InstanceMethods
+    end
+
+  end
+
+  Topic.send(:include, TopicPatch)
+
+  # based on this: http://stackoverflow.com/questions/10761059/re-open-an-activerecord-model-thats-provided-by-a-gem
+
+  # module TopicExtender
   #   module InstanceMethods
+  #     private
   #     def hide_discette_topics
   #       binding.pry
   #       if self.archetype == "discette"
@@ -46,30 +68,14 @@ after_initialize do
   #     end
   #   end
 
+  #   def self.included(receiver)
+  #     receiver.send :include, InstanceMethods
+  #     receiver.class_eval do
+  #       after_create :hide_discette_topics
+  #     end
+  #   end
   # end
-
-  # Topic.send(:include, TopicPatch)
-
-  # based on this: http://stackoverflow.com/questions/10761059/re-open-an-activerecord-model-thats-provided-by-a-gem
-
-  module TopicExtender
-    module InstanceMethods
-      private
-      def hide_discette_topics
-        if self.archetype == "discette"
-          self.visible = false
-        end
-      end
-    end
-
-    def self.included(receiver)
-      receiver.send :include, InstanceMethods
-      receiver.class_eval do
-        after_create :hide_discette_topics
-      end
-    end
-  end
-  Topic.send(:include, TopicExtender)
+  # Topic.send(:include, TopicExtender)
 
   module ApplicationControllerExtender
     def self.included(klass)

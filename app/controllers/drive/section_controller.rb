@@ -154,6 +154,8 @@ module Drive
 
 
       current_section["root_url"] = "http://klavado.com"
+      # TODO - remove below after fixing in client app
+      current_section["rootUrl"] = "http://klavado.com"
 
       store_preloaded("currentSection", current_section.to_json)
       store_preloaded("siteSettings", SiteSetting.client_settings_json)
