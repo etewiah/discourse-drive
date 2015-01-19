@@ -86,6 +86,13 @@ after_initialize do
       # right now I only care about redirecting the root
       return if (request.path != "/")
 
+      if request.subdomain.blank?
+        # rightnow, this welcome route depends on the 'sectioned-plugin'
+        # TODO - incorporate it into this plugin
+        redirect_to "/welcome"
+        return
+      end
+
       # for json requests or if we're already in discette controller, exit
       # return if ( (request.format && request.format.json?) || params[:controller] == 'drive/discette')
 
@@ -96,10 +103,12 @@ after_initialize do
     end
 
     def is_discette_subdomain subdomain
-      section = Drive::Section.where(:subdomain_lower => subdomain).first
+      # section = Drive::Section.where(:subdomain_lower => subdomain).first
 
       # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
-      if section
+      # if section
+      # 
+      unless (%w(madhacks lisa).include? subdomain.downcase)
         return true
       else
         return false

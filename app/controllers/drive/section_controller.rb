@@ -138,6 +138,7 @@ module Drive
     # end point for routes that are only implemented client side
     # TODO - render useful serverside content for search engine etc..
     def landing
+      binding.pry
       subdomain_lower = request.subdomain.downcase || "default"
       section = Drive::Section.where(:subdomain_lower => subdomain_lower).first
       # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
