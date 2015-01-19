@@ -52,19 +52,12 @@ module Drive
       else
         subdomain_lower = request.subdomain.downcase
       end
-      # subdomain_lower = params[:subdomain].downcase || request.subdomain.downcase
-
-      # TODO - figure out r/n b/n sectionname and catname
-      # guardian.ensure_can_create!(Category)
-
-      # position = category_params.delete(:position)
-
-      # section_category = Category.create(category_params.merge(user: current_user))
 
       section_category = Category.where(:name => subdomain_lower).first_or_initialize
       unless section_category.user
         section_category.user_id = current_user.id
         section_category.description = params[:description]
+        section_category.read_restricted = true
       end
       return render_json_error(section_category) unless section_category.save
       section_category.topic.visible = false
@@ -79,7 +72,7 @@ module Drive
         section_discette = Drive::Discette.find(params[:discette][:id])        
       else
         # TODO - extract method for retrieving default discette
-        section_discette = Drive::Discette.where(:slug => 'ed').first
+        section_discette = Drive::Discette.where(:slug => 'default').first
       end
 
       new_section.name = params[:name]
@@ -144,8 +137,8 @@ module Drive
     # end point for routes that are only implemented client side
     # TODO - render useful serverside content for search engine etc..
     def landing
-      subdomain = request.subdomain.downcase || "default"
-      section = Drive::Section.where(:subdomain_lower => subdomain).first
+      subdomain_lower = request.subdomain.downcase || "default"
+      section = Drive::Section.where(:subdomain_lower => subdomain_lower).first
       # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
       if section && section.discette
         # TODO - add validation to ensure sections always have a discette
@@ -155,7 +148,7 @@ module Drive
         current_section = section.as_json
       else
         @discette_name = "default"
-        current_section = {name: "Unknown"}
+        current_section = {name: "Unknown", status: "unclaimed", subdomain_lower: subdomain_lower}
       end
 
 

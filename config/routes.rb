@@ -6,6 +6,10 @@ Drive::Engine.routes.draw do
   get "/d/*path" => "section#landing"
   get "/home" => "section#landing"
   get "/home/*path" => "section#landing"
+  get "/overview" => "section#landing"
+  get "/overview/*path" => "section#landing"
+  get "/start" => "section#landing"
+
 
 # below route is target for 'hidden-login-form'
   post "/drive/section/login" => "section#enter"
