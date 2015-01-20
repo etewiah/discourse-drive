@@ -34,7 +34,7 @@ module Drive
       discettes = Drive::Discette.all
       sections_serialized = serialize_data(sections, Drive::SectionSerializer)
 
-# temporary workaround : return all categories for section mgmt
+      # temporary workaround : return all categories for section mgmt
       categories = Category.all
       # return render json: sections.as_json, root: false
       return render_json_dump({
@@ -46,31 +46,18 @@ module Drive
 
     def create
       return render_json_error('unauthenticated') unless current_user
-      # 
+      #
       if params[:subdomain]
         subdomain_lower = params[:subdomain].downcase
       else
         subdomain_lower = request.subdomain.downcase
       end
 
-      section_category = Category.where(:name => subdomain_lower).first_or_initialize
-      unless section_category.user
-        section_category.user_id = current_user.id
-        section_category.description = params[:description]
-        # in future might set this below to secure sections:
-        # section_category.read_restricted = true
-      end
-      return render_json_error(section_category) unless section_category.save
-      section_category.topic.visible = false
-      section_category.topic.save
-
-      # section_category.move_to(position.to_i) if position
-      # render_serialized(section_category, CategorySerializer)
-
+      section_category = create_category_for_section subdomain_lower, params[:description]
 
       new_section = Drive::Section.where(:subdomain_lower => subdomain_lower).first_or_initialize
       if params[:discette]
-        section_discette = Drive::Discette.find(params[:discette][:id])        
+        section_discette = Drive::Discette.find(params[:discette][:id])
       else
         # TODO - extract method for retrieving default discette
         section_discette = Drive::Discette.where(:slug => 'default').first
@@ -82,7 +69,7 @@ module Drive
       return render_json_error(new_section) unless new_section.save
 
       section_owner = new_section.section_users.where(:user_id => current_user.id).first_or_initialize
-      # section_owner.user_id = current_user.id
+
       # TODO - use flag tzu for below:
       section_owner.role = "owner"
       section_owner.save!
@@ -99,7 +86,7 @@ module Drive
       if section.destroy!
         render json: { success: 'OK' }
       else
-        render status: :bad_request, json: {"error" => {"message" => "Error deleting section"}}        
+        render status: :bad_request, json: {"error" => {"message" => "Error deleting section"}}
       end
     end
 
@@ -144,8 +131,8 @@ module Drive
       if section && section.discette
         # TODO - add validation to ensure sections always have a discette
         @discette_name = section.discette.slug
-      # The @discette_name is used by the layout to decide which javascript (effectively which ember app)
-      # to use
+        # The @discette_name is used by the layout to decide which javascript (effectively which ember app)
+        # to use
         current_section = section.as_json
       else
         @discette_name = "default"
@@ -197,7 +184,9 @@ module Drive
       end
       about_topic = section.category.topic
 
-      opts = {}
+      opts = {
+        suggested_topics: []
+      }
       begin
         @topic_view = TopicView.new(about_topic.id, current_user, opts)
       rescue Discourse::NotFound
@@ -206,8 +195,13 @@ module Drive
         redirect_to_correct_topic(topic, opts[:post_number]) && return
       end
 
-      topic_view_serializer = TopicViewSerializer.new(@topic_view, scope: guardian, root: false, include_raw: !!params[:include_raw])
-      return  render_json_dump(topic_view_serializer)
+      topic_view_serializer = TopicViewSerializer.new(@topic_view, scope: guardian, root: false, include_raw: true)
+      section_serialized = serialize_data(section, Drive::SectionSerializer, root: false)
+
+      return  render_json_dump({
+                                 "section" => section_serialized,
+                                 "topic" => topic_view_serializer
+      })
     end
 
     def current
@@ -217,17 +211,8 @@ module Drive
       unless section && section.category
         return  render json: { section_status: 'unclaimed'}
       end
-      # about_topic = section.category.topic
 
-      # opts = {}
-      # begin
-      #   @topic_view = TopicView.new(about_topic.id, current_user, opts)
-      # rescue Discourse::NotFound
-      #   topic = Topic.find_by(slug: params[:id].downcase) if params[:id]
-      #   raise Discourse::NotFound unless topic
-      #   redirect_to_correct_topic(topic, opts[:post_number]) && return
-      # end
-      topic_view_serializer = TopicViewSerializer.new(@topic_view, scope: guardian, root: false, include_raw: !!params[:include_raw])
+      # topic_view_serializer = TopicViewSerializer.new(@topic_view, scope: guardian, root: false, include_raw: !!params[:include_raw])
 
       section_serialized = serialize_data(section, Drive::SectionSerializer)
       return  render_json_dump(section_serialized)
@@ -250,6 +235,32 @@ module Drive
       #  to inject this safty deeper in the library or even in AM serializer
       @preloaded[key] = json.gsub("</", "<\\/")
     end
+
+    private
+
+    def create_category_for_section(subdomain_lower, description)
+      section_category = Category.where(:name => subdomain_lower).first_or_initialize
+      unless section_category.user
+        section_category.user_id = current_user.id
+        section_category.description = description
+        # if params[:is_private] 
+        #   section_category.read_restricted = true
+        # end
+      end
+      return render_json_error(section_category) unless section_category.save
+      section_category.topic.visible = false
+      # TODO - less hacky way of getting content from topics
+      template_topic_id = SiteSetting.send('guidelines_topic_id')
+      template_topic = Topic.find_by_id(template_topic_id)
+      default_post = section_category.topic.posts.first
+      default_post.raw = template_topic.posts.second.raw
+      default_post.save
+
+      return section_category
+    end
+
+
+
 
   end
 end
