@@ -8,6 +8,11 @@ load File.expand_path('../lib/drive/engine.rb', __FILE__)
 
 
 register_asset "javascripts/discourse/templates/micro-forums.js.handlebars"
+register_asset "javascripts/discourse/extensions/signup_route.js"
+register_asset "javascripts/discourse/extensions/login_route.js"
+register_asset "javascripts/discourse/routes/micro-forums.js.es6"
+register_asset "javascripts/discourse/drive_router.js"
+
 
 # class DrivesConstraint
 #   def matches?(request)
