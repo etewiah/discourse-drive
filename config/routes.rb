@@ -1,5 +1,5 @@
 Drive::Engine.routes.draw do
-  root to: 'section#landing'
+  # root to: 'section#landing'
 
   get "/" => "section#landing"
   get "/d" => "section#landing"
@@ -10,6 +10,7 @@ Drive::Engine.routes.draw do
   get "/overview/*path" => "section#landing"
   get "/start" => "section#landing"
 
+  get "/micro-forums" => "static#micro_forums"
 
 # below route is target for 'hidden-login-form'
   post "/drive/section/login" => "section#enter"

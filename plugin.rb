@@ -6,17 +6,21 @@
 # load the engine
 load File.expand_path('../lib/drive/engine.rb', __FILE__)
 
-class DrivesConstraint
-  def matches?(request)
-    # request.host == BLOG_HOST
-    return true
-  end
-end
+
+register_asset "javascripts/discourse/templates/micro-forums.js.handlebars"
+
+# class DrivesConstraint
+#   def matches?(request)
+#     # request.host == BLOG_HOST
+#     return true
+#   end
+# end
 
 # And mount the engine
 Discourse::Application.routes.append do
   # Discourse::Application.routes.prepend do
-  mount Drive::Engine, at: '/', constraints: DrivesConstraint.new
+  mount Drive::Engine, at: '/'
+  # , constraints: DrivesConstraint.new
 end
 
 

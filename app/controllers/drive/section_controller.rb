@@ -175,7 +175,7 @@ module Drive
       unless section && section.category
         return  render json: { section_status: 'unclaimed'}
       end
-      discette_topics = section.category.topics.where("deleted_at" => nil).where("visible").where("archetype" => "discette")
+      discette_topics = section.category.topics.where("deleted_at" => nil).where("archetype" => "discette")
 
       geo_topic_list_serialized = serialize_data(discette_topics, Drive::DiscetteTopicItemSerializer)
 
