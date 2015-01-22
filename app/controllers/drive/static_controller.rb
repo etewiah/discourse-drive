@@ -19,6 +19,12 @@ module Drive
 
 
     def micro_forums
+
+      unless request.subdomain.blank?
+        redirect_to "/home"
+        return
+      end
+
       # discettes = Drive::Discette.all
       # return render json: discettes.as_json, root: false
       render "drive/static/micro_forums"

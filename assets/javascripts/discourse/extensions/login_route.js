@@ -2,7 +2,7 @@
 require("discourse/routes/login")["default"].reopen({
   beforeModel: function() {
     if (!Discourse.SiteSettings.login_required) {
-      this.replaceWith('welcome').then(function(e) {
+      this.replaceWith('micro-forums').then(function(e) {
         Ember.run.next(function() {
           e.send('showLogin');
         });

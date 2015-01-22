@@ -102,9 +102,7 @@ after_initialize do
       return if (request.path != "/")
 
       if request.subdomain.blank?
-        # rightnow, this welcome route depends on the 'sectioned-plugin'
-        # TODO - incorporate it into this plugin
-        redirect_to "/welcome"
+        redirect_to "/micro-forums"
         return
       end
 

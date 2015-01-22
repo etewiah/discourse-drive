@@ -1,18 +1,8 @@
 export default Discourse.Route.extend({
-  beforeModel: function() {
-    debugger;
-  },
-
-  // model: function() {
-  //   return Discourse.StaticPage.find('login');
+// This route just displays a static welcome template
+// There is a similarly named route in discette which either routes to start or home
+// On the server side, this will redirect to home unless subdomain is empty
+  // beforeModel: function() {
+  //   // debugger;
   // },
-
-  // renderTemplate: function() {
-  //   // do nothing
-  //   this.render('static');
-  // },
-
-  // setupController: function(controller, model) {
-  //   this.controllerFor('static').set('model', model);
-  // }
 });
