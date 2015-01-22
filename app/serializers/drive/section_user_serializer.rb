@@ -1,6 +1,8 @@
 module Drive
   class SectionUserSerializer < ApplicationSerializer
-    attributes :id, :username, :uploaded_avatar_id, :avatar_template,
+    attributes :id, :username, 
+    :name, :uploaded_avatar_id, 
+    :created_at, :avatar_template,
     :user_id, :role
 
     def user_id
@@ -9,6 +11,10 @@ module Drive
 
     def username
       object.user.username
+    end
+
+    def name
+      object.user.name
     end
 
     def uploaded_avatar_id
