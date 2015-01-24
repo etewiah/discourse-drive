@@ -31,6 +31,9 @@ end
 
 
 after_initialize do
+  require_dependency File.expand_path('../read_in_discettes.rb', __FILE__)
+  # load File.expand_path("../app/jobs/map_topic/update_categories.rb", __FILE__)
+
   # ApplicationController.class_eval do
   #   def set_layout
   #     use_crawler_layout? ? 'crawler' : 'drive'
