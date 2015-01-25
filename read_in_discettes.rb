@@ -3,7 +3,7 @@ module Drive
   class DiscetteUpdater
     def self.update_discette discette, drive_dir
       files_hash = { "css" => [] , "js" => [] }
-      drive_files = Dir.glob(drive_dir + "/*")
+      drive_files = Dir.glob(drive_dir + "/assets/*")
       drive_files.each do |drive_file|
         if File.extname(drive_file) == ".css"
           files_hash["css"].push( File.split(drive_file)[1] )

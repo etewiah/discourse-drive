@@ -129,16 +129,32 @@ module Drive
       section = Drive::Section.where(:subdomain_lower => subdomain_lower).first
       # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
       if section && section.discette
+        current_discette = section.discette
         # TODO - add validation to ensure sections always have a discette
-        @discette_name = section.discette.slug
-        # The @discette_name is used by the layout to decide which javascript (effectively which ember app)
-        # to use
         current_section = section.as_json
       else
-        @discette_name = "default"
+        current_discette = Drive::Discette.where(:slug => "default").first
         current_section = {name: "Unknown", status: "unclaimed", subdomain_lower: subdomain_lower}
       end
 
+      @discette_css_files = []
+      current_discette.meta["files"]["css"].each do |css_file|
+        css_file_with_path = "/plugins/Drive/drives/" + current_discette.slug + "/assets/" + css_file
+        @discette_css_files.push css_file_with_path
+      end
+
+      @discette_js_files = []
+      current_discette.meta["files"]["js"].each do |js_file|
+        js_file_with_path = "/plugins/Drive/drives/" + current_discette.slug + "/assets/" + js_file
+        # This is quite fragile at the moment as it only works for js files named exactly as my discette-template
+        # files at the moment.  If the way the files should be ordered or named changes, the files may get 
+        # loaded in the wrong order
+        @discette_js_files.unshift js_file_with_path
+      end
+      # [
+      #   "/plugins/Drive/drives/" + current_discette.slug + "/vendor.css",
+      #   "/plugins/Drive/drives/" + current_discette.slug + "/discette.css"
+      # ]
 
       current_section["root_url"] = "http://klavado.com"
       # TODO - remove below after fixing in client app
