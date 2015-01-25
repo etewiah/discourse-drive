@@ -125,8 +125,8 @@ module Drive
     # end point for routes that are only implemented client side
     # TODO - render useful serverside content for search engine etc..
     def landing
-      root_url = Rails.env.development? ? "http://lvh.me:3000" : "http:klavado.com"
-      assets_base_url = Rails.env.development? ? "" : "http:klavado.com"
+      root_url = Rails.env.development? ? "http://lvh.me:3000" : "http://klavado.com"
+      assets_base_url = Rails.env.development? ? "" : "http://klavado.com"
 
       subdomain_lower = request.subdomain.downcase || "default"
       section = Drive::Section.where(:subdomain_lower => subdomain_lower).first
