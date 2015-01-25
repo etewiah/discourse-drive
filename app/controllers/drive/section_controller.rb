@@ -125,6 +125,9 @@ module Drive
     # end point for routes that are only implemented client side
     # TODO - render useful serverside content for search engine etc..
     def landing
+      root_url = Rails.env.development? ? "http://lvh.me:3000" : "http:klavado.com"
+      assets_base_url = Rails.env.development? ? "" : "http:klavado.com"
+
       subdomain_lower = request.subdomain.downcase || "default"
       section = Drive::Section.where(:subdomain_lower => subdomain_lower).first
       # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
@@ -139,13 +142,13 @@ module Drive
 
       @discette_css_files = []
       current_discette.meta["files"]["css"].each do |css_file|
-        css_file_with_path = "/plugins/Drive/drives/" + current_discette.slug + "/assets/" + css_file
+        css_file_with_path = "#{assets_base_url}/plugins/Drive/drives/#{current_discette.slug}/assets/#{css_file}" 
         @discette_css_files.push css_file_with_path
       end
 
       @discette_js_files = []
       current_discette.meta["files"]["js"].each do |js_file|
-        js_file_with_path = "/plugins/Drive/drives/" + current_discette.slug + "/assets/" + js_file
+        js_file_with_path = "#{assets_base_url}/plugins/Drive/drives/#{current_discette.slug}/assets/#{js_file}" 
         # This is quite fragile at the moment as it only works for js files named exactly as my discette-template
         # files at the moment.  If the way the files should be ordered or named changes, the files may get 
         # loaded in the wrong order
@@ -156,9 +159,9 @@ module Drive
       #   "/plugins/Drive/drives/" + current_discette.slug + "/discette.css"
       # ]
 
-      current_section["root_url"] = "http://klavado.com"
+      current_section["root_url"] = root_url
       # TODO - remove below after fixing in client app
-      current_section["rootUrl"] = "http://klavado.com"
+      current_section["rootUrl"] = root_url
 
       store_preloaded("currentSection", current_section.to_json)
       store_preloaded("siteSettings", SiteSetting.client_settings_json)
