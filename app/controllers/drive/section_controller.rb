@@ -258,7 +258,8 @@ module Drive
     private
 
     def create_category_for_section(subdomain_lower, description)
-      section_category = Category.where(:name => subdomain_lower).first_or_initialize
+      # TODO - add validation to Category to prevent creation of multiple categories with same :name_lower
+      section_category = Category.where(:name_lower => subdomain_lower).first_or_initialize
       unless section_category.user
         section_category.user_id = current_user.id
         section_category.description = description
