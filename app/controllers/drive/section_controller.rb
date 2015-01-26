@@ -1,7 +1,7 @@
 module Drive
   require 'current_user'
 
-  class SectionController < ::ApplicationController
+  class SectionController < Drive::ApplicationController
     # if I inherit from my own App controller as below, I lose the useful helpers from discourse (such as current_user) in templates
     # Drive::ApplicationController
     include CurrentUser
@@ -28,8 +28,63 @@ module Drive
     # below check seems to redirect to main domain if user not authenticated
     # before_action :ensure_logged_in, only: [:claim_section]
 
+    before_filter :ensure_current_section_admin, only: [:destroy_current]
 
-    def all
+
+    def destroy_current
+      subdomain = request.subdomain.downcase
+      section = Drive::Section.where(:subdomain_lower => subdomain).first
+      unless section && section.category
+        return  render json: { section_status: 'unclaimed'}
+      end
+      if section.destroy!
+        render json: { success: 'OK' }
+      else
+        render status: :bad_request, json: {"error" => {"message" => "Error deleting section"}}
+      end
+    end
+
+    def about
+      subdomain = request.subdomain.downcase
+      section = Drive::Section.where(:subdomain_lower => subdomain).first
+      unless section && section.category
+        return  render json: { section_status: 'unclaimed'}
+      end
+      about_topic = section.category.topic
+
+      opts = {
+        suggested_topics: []
+      }
+      begin
+        @topic_view = TopicView.new(about_topic.id, current_user, opts)
+      rescue Discourse::NotFound
+        topic = Topic.find_by(slug: params[:id].downcase) if params[:id]
+        raise Discourse::NotFound unless topic
+        redirect_to_correct_topic(topic, opts[:post_number]) && return
+      end
+
+      topic_view_serializer = TopicViewSerializer.new(@topic_view, scope: guardian, root: false, include_raw: true)
+      section_serialized = serialize_data(section, Drive::SectionSerializer, root: false)
+
+      return  render_json_dump({
+                                 "section" => section_serialized,
+                                 "topic" => topic_view_serializer
+      })
+    end
+
+    def current
+      subdomain = request.subdomain.downcase
+      section = Drive::Section.where(:subdomain_lower => subdomain).first
+      unless section && section.category
+        return  render json: { section_status: 'unclaimed'}
+      end
+      section_serialized = serialize_data(section, Drive::SectionSerializer)
+      return  render_json_dump(section_serialized)
+    end
+
+
+    def directory
+# TODO - ensure no admin info leaks from here:
       sections = Drive::Section.all
       discettes = Drive::Discette.all
       sections_serialized = serialize_data(sections, Drive::SectionSerializer)
@@ -44,17 +99,15 @@ module Drive
       })
     end
 
+
+# TODO refactor to minimise duplication b/n here and admin
     def create
       return render_json_error('unauthenticated') unless current_user
-      #
-      if params[:subdomain]
-        subdomain_lower = params[:subdomain].downcase
-      else
-        subdomain_lower = request.subdomain.downcase
-      end
+      subdomain_lower = request.subdomain.downcase
 
       section_category = create_category_for_section subdomain_lower, params[:description]
 
+      # TODO - ensure section does not already exist
       new_section = Drive::Section.where(:subdomain_lower => subdomain_lower).first_or_initialize
       if params[:discette]
         section_discette = Drive::Discette.find(params[:discette][:id])
@@ -78,15 +131,6 @@ module Drive
         render json: new_section.as_json
       else
         render status: :bad_request, json: {"error" => {"message" => "Error creating section"}}
-      end
-    end
-
-    def destroy
-      section = Drive::Section.find(params[:id])
-      if section.destroy!
-        render json: { success: 'OK' }
-      else
-        render status: :bad_request, json: {"error" => {"message" => "Error deleting section"}}
       end
     end
 
@@ -142,15 +186,15 @@ module Drive
 
       @discette_css_files = []
       current_discette.meta["files"]["css"].each do |css_file|
-        css_file_with_path = "#{assets_base_url}/plugins/Drive/drives/#{current_discette.slug}/assets/#{css_file}" 
+        css_file_with_path = "#{assets_base_url}/plugins/Drive/drives/#{current_discette.slug}/assets/#{css_file}"
         @discette_css_files.push css_file_with_path
       end
 
       @discette_js_files = []
       current_discette.meta["files"]["js"].each do |js_file|
-        js_file_with_path = "#{assets_base_url}/plugins/Drive/drives/#{current_discette.slug}/assets/#{js_file}" 
+        js_file_with_path = "#{assets_base_url}/plugins/Drive/drives/#{current_discette.slug}/assets/#{js_file}"
         # This is quite fragile at the moment as it only works for js files named exactly as my discette-template
-        # files at the moment.  If the way the files should be ordered or named changes, the files may get 
+        # files at the moment.  If the way the files should be ordered or named changes, the files may get
         # loaded in the wrong order
         @discette_js_files.unshift js_file_with_path
       end
@@ -194,49 +238,6 @@ module Drive
     end
 
 
-    def about
-      subdomain = request.subdomain.downcase
-      section = Drive::Section.where(:subdomain_lower => subdomain).first
-      # category = Category.where(:name_lower => subdomain).first
-      unless section && section.category
-        return  render json: { section_status: 'unclaimed'}
-      end
-      about_topic = section.category.topic
-
-      opts = {
-        suggested_topics: []
-      }
-      begin
-        @topic_view = TopicView.new(about_topic.id, current_user, opts)
-      rescue Discourse::NotFound
-        topic = Topic.find_by(slug: params[:id].downcase) if params[:id]
-        raise Discourse::NotFound unless topic
-        redirect_to_correct_topic(topic, opts[:post_number]) && return
-      end
-
-      topic_view_serializer = TopicViewSerializer.new(@topic_view, scope: guardian, root: false, include_raw: true)
-      section_serialized = serialize_data(section, Drive::SectionSerializer, root: false)
-
-      return  render_json_dump({
-                                 "section" => section_serialized,
-                                 "topic" => topic_view_serializer
-      })
-    end
-
-    def current
-      subdomain = request.subdomain.downcase
-      section = Drive::Section.where(:subdomain_lower => subdomain).first
-      # category = Category.where(:name_lower => subdomain).first
-      unless section && section.category
-        return  render json: { section_status: 'unclaimed'}
-      end
-
-      # topic_view_serializer = TopicViewSerializer.new(@topic_view, scope: guardian, root: false, include_raw: !!params[:include_raw])
-
-      section_serialized = serialize_data(section, Drive::SectionSerializer)
-      return  render_json_dump(section_serialized)
-    end
-
 
     def preload_drive_data
       store_preloaded("site", Site.json_for(guardian))
@@ -263,7 +264,7 @@ module Drive
       unless section_category.user
         section_category.user_id = current_user.id
         section_category.description = description
-        # if params[:is_private] 
+        # if params[:is_private]
         #   section_category.read_restricted = true
         # end
       end

@@ -1,13 +1,16 @@
 Drive::Engine.routes.draw do
   # root to: 'section#landing'
 
+# should I have a current section controller?
+
   get "/" => "section#landing"
   get "/d" => "section#landing"
   get "/d/*path" => "section#landing"
   get "/home" => "section#landing"
   get "/home/*path" => "section#landing"
-  get "/overview" => "section#landing"
-  get "/overview/*path" => "section#landing"
+  get "/directory" => "section#landing"
+  get "/drive-admin" => "section#landing"
+  get "/drive-admin/*path" => "section#landing"
   get "/start" => "section#landing"
 
   get "/micro-forums" => "static#micro_forums"
@@ -18,14 +21,20 @@ Drive::Engine.routes.draw do
 
   get "/drive/section/about" => "section#about"
   get "/drive/section/current" => "section#current"
+  delete "/drive/section/current" => "section#delete_current"
 
-  get "/drive/discettes" => "discette#all"
-  get "/drive/sections" => "section#all"
+  # get "/drive/discettes" => "discette#all"
+  get "/drive/section/directory" => "section#directory"
 
-  post "/drive/discette/create" => "discette#create"
   post "/drive/section/create" => "section#create"
-  delete "/drive/discette/:id" => "discette#destroy"
-  delete "/drive/section/:id" => "section#destroy"
+# above only creates for the current section and user which can be passed in below:
+  post "/drive/admin/section/create" => "admin#create_section"
+  post "/drive/admin/discette/create" => "admin#create_discette"
+  delete "/drive/admin/discette/:id" => "admin#destroy_discette"
+  delete "/drive/admin/section/:id" => "admin#destroy_section"
+  get "/drive/admin/sections" => "admin#all_sections" #currently includes discettes
+  get "/drive/admin/section/:id" => "admin#show_section"
+  get "/drive/admin/discette/:id" => "admin#show_discette"
 
   # TODO - use above instead of below from client side:
 
