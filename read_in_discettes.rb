@@ -35,10 +35,10 @@ Drive::DiscetteUpdater.read_in_discettes
 
 
 # temporary hack to get madrid topics available in section
-Category.where(:name => "Madrid").first.topics.each do |topic|
-  if topic.archetype == "regular"
-    topic.archetype = "discette"
-    topic.save!
-  end
-end
+# Category.where(:name => "Madrid").first.topics.each do |topic|
+#   if topic.archetype == "regular"
+#     topic.archetype = "discette"
+#     topic.save!
+#   end
+# end
 

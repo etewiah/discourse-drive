@@ -105,8 +105,9 @@ after_initialize do
       return if (request.path != "/")
 
       if request.subdomain.blank?
-        redirect_to "/micro-forums"
-        return
+        return render "drive/static/micro_forums"
+        # redirect_to "/micro-forums"
+        # return
       end
 
       # for json requests or if we're already in discette controller, exit
