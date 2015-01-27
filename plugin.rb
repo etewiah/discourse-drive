@@ -104,11 +104,11 @@ after_initialize do
       # right now I only care about redirecting the root
       return if (request.path != "/")
 
-      if request.subdomain.blank?
-        return render "drive/static/micro_forums"
-        # redirect_to "/micro-forums"
-        # return
-      end
+      # if request.subdomain.blank?
+      #   return render "drive/static/micro_forums"
+      #   # redirect_to "/micro-forums"
+      #   # return
+      # end
 
       # for json requests or if we're already in discette controller, exit
       # return if ( (request.format && request.format.json?) || params[:controller] == 'drive/discette')
