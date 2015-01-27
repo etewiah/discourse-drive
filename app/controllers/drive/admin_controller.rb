@@ -31,7 +31,7 @@ module Drive
 
     def show_discette
       discette = Drive::Discette.find(params[:id])
-      discette_serialized = serialize_data(discette, Drive::DiscetteSerializer)
+      discette_serialized = serialize_data(discette, Drive::DetailedDiscetteSerializer, :root => 'discette')
       return  render_json_dump(discette_serialized)
     end
 
@@ -46,6 +46,10 @@ module Drive
 
     def destroy_discette
       discette = Drive::Discette.find(params[:id])
+      if discette.sections && discette.sections.length > 0
+        # return render status: :bad_request, json: {"error" => {"message" => "Discette has sections"}}
+        return render_json_error "Cannot delete: discette has sections."
+      end
       if discette.destroy!
         render json: { success: 'OK' }
       else
@@ -54,7 +58,6 @@ module Drive
     end
 
     def create_discette
-      # binding.pry
       new_discette = Drive::Discette.where(:slug => params[:slug].downcase).first_or_initialize
       new_discette.name = params[:name]
       new_discette.description = params[:description]
@@ -66,7 +69,6 @@ module Drive
     end
 
     def update_discette
-      binding.pry
       discette = Drive::Discette.find(params[:id])
       discette.name = params[:name]
       discette.slug = params[:slug]
