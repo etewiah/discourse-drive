@@ -65,10 +65,22 @@ module Drive
       end
     end
 
+    def update_discette
+      binding.pry
+      discette = Drive::Discette.find(params[:id])
+      discette.name = params[:name]
+      discette.slug = params[:slug]
+      discette.description = params[:description]
+      if discette.save!
+        render json: discette.as_json
+      else
+        render status: :bad_request, json: {"error" => {"message" => "Error updating discette"}}
+      end
+    end
 
-    # TODO refactor to minimise duplication b/n here and admin
+    # TODO refactor to minimise duplication b/n here and section controller
     def create_section
-      subdomain_lower = params[:subdomain].downcase
+      subdomain_lower = params[:subdomain_lower].downcase
       user_id = params[:user_id] || current_user.id
 
       section_category = create_category_for_section subdomain_lower, params[:description]
@@ -84,6 +96,7 @@ module Drive
 
       new_section.name = params[:name]
       new_section.discette = section_discette
+
       new_section.category = section_category
       return render_json_error(new_section) unless new_section.save
 
@@ -97,6 +110,36 @@ module Drive
         render json: new_section.as_json
       else
         render status: :bad_request, json: {"error" => {"message" => "Error creating section"}}
+      end
+    end
+
+    def update_section
+      section = Drive::Section.find(params[:id])
+
+      subdomain_lower = params[:subdomain_lower].downcase
+      user_id = params[:user_id] || current_user.id
+
+      section_category = create_category_for_section subdomain_lower, params[:description]
+
+      section_discette = Drive::Discette.find(params[:discette_id])
+
+      section.name = params[:name]
+      section.subdomain_lower = subdomain_lower
+      section.discette = section_discette
+
+      section.category = section_category
+      return render_json_error(section) unless section.save
+
+      section_owner = section.section_users.where(:user_id => user_id).first_or_initialize
+
+      # TODO - use flag tzu for below:
+      section_owner.role = "owner"
+      section_owner.save!
+
+      if section.save!
+        render json: section.as_json
+      else
+        render status: :bad_request, json: {"error" => {"message" => "Error updating section"}}
       end
     end
 

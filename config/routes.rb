@@ -28,13 +28,16 @@ Drive::Engine.routes.draw do
 
   post "/drive/section/create" => "section#create"
 # above only creates for the current section and user which can be passed in below:
-  post "/drive/admin/section/create" => "admin#create_section"
-  post "/drive/admin/discette/create" => "admin#create_discette"
+  post "/drive/admin/section" => "admin#create_section"
+  post "/drive/admin/discette" => "admin#create_discette"
   delete "/drive/admin/discette/:id" => "admin#destroy_discette"
   delete "/drive/admin/section/:id" => "admin#destroy_section"
   get "/drive/admin/sections" => "admin#all_sections" #currently includes discettes
   get "/drive/admin/section/:id" => "admin#show_section"
   get "/drive/admin/discette/:id" => "admin#show_discette"
+
+  put "/drive/admin/section/:id" => "admin#update_section"
+  put "/drive/admin/discette/:id" => "admin#update_discette"
 
   # TODO - use above instead of below from client side:
 
