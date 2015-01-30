@@ -40,20 +40,19 @@ module Drive
       if section.destroy!
         render json: { success: 'OK' }
       else
-        render status: :bad_request, json: {"error" => {"message" => "Error deleting section"}}
+        return render_json_error('Error deleting section')
       end
     end
 
     def destroy_discette
       discette = Drive::Discette.find(params[:id])
       if discette.sections && discette.sections.length > 0
-        # return render status: :bad_request, json: {"error" => {"message" => "Discette has sections"}}
         return render_json_error "Cannot delete: discette has sections."
       end
       if discette.destroy!
         render json: { success: 'OK' }
       else
-        render status: :bad_request, json: {"error" => {"message" => "Error deleting discette"}}
+        return render_json_error('Error deleting discette')
       end
     end
 
@@ -64,7 +63,7 @@ module Drive
       if new_discette.save!
         render json: new_discette.as_json
       else
-        render status: :bad_request, json: {"error" => {"message" => "Error creating discette"}}
+        return render_json_error('Error creating discette')
       end
     end
 
@@ -76,7 +75,7 @@ module Drive
       if discette.save!
         render json: discette.as_json
       else
-        render status: :bad_request, json: {"error" => {"message" => "Error updating discette"}}
+        return render_json_error('Error updating discette')
       end
     end
 
@@ -111,19 +110,18 @@ module Drive
       if new_section.save!
         render json: new_section.as_json
       else
-        render status: :bad_request, json: {"error" => {"message" => "Error creating section"}}
+        return render_json_error('Error creating section')
       end
     end
 
     def update_section
       section = Drive::Section.find(params[:id])
+      section_discette = Drive::Discette.find_by_id(params[:discette_id])
+      return render_json_error('Discette not found') unless section_discette
 
       subdomain_lower = params[:subdomain_lower].downcase
       user_id = params[:user_id] || current_user.id
-
       section_category = create_category_for_section subdomain_lower, params[:description]
-
-      section_discette = Drive::Discette.find(params[:discette_id])
 
       section.name = params[:name]
       section.subdomain_lower = subdomain_lower
@@ -141,7 +139,7 @@ module Drive
       if section.save!
         render json: section.as_json
       else
-        render status: :bad_request, json: {"error" => {"message" => "Error updating section"}}
+        return render_json_error('Error updating section')
       end
     end
 

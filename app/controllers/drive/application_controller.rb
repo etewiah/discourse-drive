@@ -5,7 +5,7 @@ module Drive
     private
 
     def ensure_admin
-      render_json_error(current_user) unless current_user.admin?    
+      render_json_error(current_user) unless current_user && current_user.admin?    
       # raise Discourse::InvalidAccess.new unless current_user.admin?
     end
 
