@@ -187,7 +187,7 @@ module Drive
       @discette_css_files = []
       current_discette.meta["files"]["css"].each do |css_file|
         css_file_with_path = "#{assets_base_url}/plugins/Drive/drives/#{current_discette.slug}/assets/#{css_file}"
-        @discette_css_files.push css_file_with_path
+        @discette_css_files.unshift css_file_with_path
       end
 
       @discette_js_files = []
