@@ -39,13 +39,7 @@ Drive::Engine.routes.draw do
   put "/drive/admin/section/:id" => "admin#update_section"
   put "/drive/admin/discette/:id" => "admin#update_discette"
 
-  # TODO - use above instead of below from client side:
+  get "/passthrough/latest" => "passthrough#latest"
 
-  # post "/discette_login" => "discette#enter"
-  # get "/discette_topics" => "discette#discette_topics"
-
-  # get "/discette/topics" => "discette#discette_topics"
-  # get "/discette/about" => "discette#discette_about"
-
-  # get "*path" => "discette#landing"
+  get "/discourse_sites/get_or_add_site" => "discourse_sites#get_or_add_site"
 end
