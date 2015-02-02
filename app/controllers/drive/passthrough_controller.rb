@@ -8,11 +8,19 @@ module Drive
     # before_action :verify_host_param, except: [:get_or_add_site, :get_sites]
 
     def latest
-      unless(params[:host])
+      unless(params[:host] || params[:slug])
         return render_json_error "Incorrect parameters"
       end
 
-      host = params[:host]
+      if params[:slug]
+        site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
+        host = site_record.base_url
+      else
+        # site_record = Drive::DiscourseSite.where(:base_url => params[:host]).first
+        # host = site_record.base_url
+        host = params[:host]
+      end
+
        # "https://meta.discourse.org"
       conn = get_connection host
       path = "/latest.json"

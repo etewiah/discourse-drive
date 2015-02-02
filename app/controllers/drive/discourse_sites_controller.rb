@@ -14,10 +14,10 @@ module Drive
     #   end
 
     #   if params[:slug]
-    #     site_record = Offcourse::DiscourseSite.where(:slug => params[:slug]).first
+    #     site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
     #     host = site_record.base_url
     #   else
-    #     site_record = Offcourse::DiscourseSite.where(:base_url => params[:host]).first
+    #     site_record = Drive::DiscourseSite.where(:base_url => params[:host]).first
     #     host = site_record.base_url
     #     # host = params[:host]
     #   end
@@ -38,7 +38,7 @@ module Drive
 
     # def topics_per_category
     #   if params[:slug]
-    #     site_record = Offcourse::DiscourseSite.where(:slug => params[:slug]).first
+    #     site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
     #     host = site_record.base_url
     #   else
     #     host = params[:host]
@@ -68,16 +68,16 @@ module Drive
 
 
     def get_sites
-      current_section = get_current_section
-      binding.pry
-      site_records = Offcourse::DiscourseSite.all
+      # current_section = get_current_section
+      # binding.pry
+      site_records = Drive::DiscourseSite.all
       return render json: site_records.as_json, root: false
     end
 
     def get_or_add_site
       current_section = get_current_section
       if params[:slug]
-        site_record = Offcourse::DiscourseSite.where(:slug => params[:slug]).first
+        site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
         return render json: site_record.as_json
 
       else
@@ -85,7 +85,7 @@ module Drive
         base_url = "#{uri.scheme}://#{uri.host}"
         # TODO - calculate and use slug below to avoid say http & https confusion
         site_record = nil
-         # Offcourse::DiscourseSite.where(:base_url => base_url).first
+         # Drive::DiscourseSite.where(:base_url => base_url).first
         if site_record
           return render json: site_record.as_json
         else
@@ -135,7 +135,7 @@ module Drive
       uri = URI.parse site_info['host_url']
       new_site = {}
       binding.pry 
-      # Offcourse::DiscourseSite.where(:base_url => site_info['host_url']).first_or_initialize
+      # Drive::DiscourseSite.where(:base_url => site_info['host_url']).first_or_initialize
       # new_site["meta"] = site_info
       new_site["slug"] = uri.hostname.gsub( ".","_")
       new_site["display_name"] = site_info['title']
