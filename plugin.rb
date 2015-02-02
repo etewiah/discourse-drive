@@ -6,6 +6,7 @@
 # load the engine
 load File.expand_path('../lib/drive/engine.rb', __FILE__)
 
+load File.expand_path('../lib/drive/discourse_client.rb', __FILE__)
 
 register_asset "javascripts/discourse/templates/micro-forums.js.handlebars"
 register_asset "javascripts/discourse/extensions/signup_route.js"
