@@ -39,7 +39,16 @@ Drive::Engine.routes.draw do
   put "/drive/admin/section/:id" => "admin#update_section"
   put "/drive/admin/discette/:id" => "admin#update_discette"
 
-  get "/passthrough/latest" => "passthrough#latest"
+  # get "/passthrough/latest" => "passthrough#latest"
+  # get "/passthrough/about" => "passthrough#about"
+  # get "/passthrough/categories" => "passthrough#categories"
+  # get "/passthrough/topic_details" => "passthrough#topic_details"
 
   get "/discourse_sites/get_or_add_site" => "discourse_sites#get_or_add_site"
+  get "/discourse_sites/get_sites" => "discourse_sites#get_sites"
+  # get "/discourse_sites/passthrough" => "discourse_sites#passthrough"
+  get "/discourse_sites/:slug/latest" => "discourse_sites#latest"
+  get "/discourse_sites/:slug/about" => "discourse_sites#about"
+  get "/discourse_sites/:slug/categories" => "discourse_sites#categories"
+  get "/discourse_sites/:slug/topic_details" => "discourse_sites#topic_details"
 end

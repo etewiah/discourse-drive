@@ -74,42 +74,67 @@ module Drive
       return render json: site_records.as_json, root: false
     end
 
-    def get_or_add_site
-      current_section = get_current_section
-      if params[:slug]
-        site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
-        return render json: site_record.as_json
+    # def passthrough
+    #   path = "/#{params[:target]}.json"
+    #   host = host_from_params
+    #   conn = get_connection host
+    #   path = path
+    #   pass_through_request conn, path
+    # end
 
+    def latest
+      if params[:category]
+        path = "/c/#{params[:category]}.json"
       else
-        uri = URI.parse(params[:host])
-        base_url = "#{uri.scheme}://#{uri.host}"
-        # TODO - calculate and use slug below to avoid say http & https confusion
-        site_record = nil
-         # Drive::DiscourseSite.where(:base_url => base_url).first
-        if site_record
-          return render json: site_record.as_json
-        else
-          conn = get_connection base_url
-          site_info = remote_site_info conn
-          if site_info["error"]
-            return render status: :bad_request, json: site_info
-          else
-            new_site = create_site_record site_info, current_section
-            render json: site_info
-            # new_site.as_json
-          end
-        end
+        path = "latest.json"
       end
+      host = host_from_params
+      conn = get_connection host
+      path = path
+      pass_through_request conn, path
     end
 
 
+
+    def about
+      host = host_from_params
+      conn = get_connection host
+      path = "/about.json"
+      pass_through_request conn, path
+    end
+
+    def categories
+      host = host_from_params
+      conn = get_connection host
+      path = "/categories.json"
+      pass_through_request conn, path
+    end
+
+
+    def topic_details
+      unless(params[:slug] && params[:topic_id] )
+        return render_json_error 'Incorrect parameters'
+      end
+      # site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
+      host = host_from_params
+      conn = get_connection host
+
+      path = '/t/' + params[:topic_id] + '.json'
+      pass_through_request conn, path
+    end
+
     private
 
-    # def verify_host_param
-    #   unless(params[:host] )
-    #     return render json: {"error" => {"message" => "incorrect params"}}
-    #   end
-    # end
+
+    def host_from_params
+      unless(params[:slug])
+        return render_json_error "Incorrect parameters"
+      end
+
+      site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
+      host = site_record.base_url
+    end
+
 
     def remote_site_info conn
       about_response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
