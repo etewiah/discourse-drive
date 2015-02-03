@@ -33,6 +33,8 @@ end
 
 after_initialize do
   require_dependency File.expand_path('../read_in_discettes.rb', __FILE__)
+  require_dependency File.expand_path('../subdomain_current_user_provider.rb', __FILE__)
+
   # load File.expand_path("../app/jobs/map_topic/update_categories.rb", __FILE__)
 
   # ApplicationController.class_eval do
@@ -125,7 +127,7 @@ after_initialize do
 
       # if (%w(oporto lisbon berlin madrid madrid2 example birmingham discette ed).include? subdomain.downcase)
       # if section
-      # 
+      #
       unless (%w(madhacks lisa).include? subdomain.downcase)
         return true
       else
