@@ -13,6 +13,10 @@ Drive::Engine.routes.draw do
   get "/drive-admin/*path" => "section#landing"
   get "/start" => "section#landing"
 
+  get "/reader" => "section#landing"
+  get "/reader/*path" => "section#landing"
+
+
   get "/micro-forums" => "static#micro_forums"
 
 # below route is target for 'hidden-login-form'
