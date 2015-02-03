@@ -192,7 +192,7 @@ module Drive
       end
 
       @discette_js_files = []
-      current_discette.meta["files"]["css"].sort_by!{ |e| e.downcase }
+      current_discette.meta["files"]["js"].sort_by!{ |e| e.downcase }
       current_discette.meta["files"]["js"].each do |js_file|
         js_file_with_path = "#{assets_base_url}/plugins/Drive/drives/#{current_discette.slug}/assets/#{js_file}"
         # This is quite fragile at the moment as it only works for js files named exactly as my discette-template
