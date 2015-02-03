@@ -7,65 +7,21 @@ module Drive
     layout false
     # before_action :verify_host_param, except: [:get_or_add_site, :get_sites]
 
-
-    # def categories
-    #   unless(params[:host] || params[:slug] )
-    #     return render json: {"error" => {"message" => "incorrect params"}}
-    #   end
-
-    #   if params[:slug]
-    #     site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
-    #     host = site_record.base_url
-    #   else
-    #     site_record = Drive::DiscourseSite.where(:base_url => params[:host]).first
-    #     host = site_record.base_url
-    #     # host = params[:host]
-    #   end
-
-    #   conn = get_connection host
-    #   # pass_through_request conn, "/categories.json"
-
-    #   response = conn.get "/categories.json"
-    #   rb = JSON.parse response.body
-
-    #   if (response.status == 200) && rb["category_list"]
-    #     return render json: { categories: rb["category_list"]["categories"],
-    #                           site_details: site_record.as_json }
-    #   else
-    #     return render json: {"error" => {"message" => "sorry, there has been an error"}}
-    #   end
-    # end
-
-    # def topics_per_category
-    #   if params[:slug]
-    #     site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
-    #     host = site_record.base_url
-    #   else
-    #     host = params[:host]
-    #   end
-
-    #   unless(host && params[:category] )
-    #     return render json: {"error" => {"message" => "incorrect params"}}
-    #   end
-    #   conn = get_connection host
-    #   page_number = params[:page_number] || "1"
-    #   # categories url has 0 based index for pages which is a bit annoying
-    #   discourse_page_number = page_number.to_i > 0 ? page_number.to_i - 1 : 0
-    #   path = "/c/" + params[:category] + "/l/latest.json?page=" + discourse_page_number.to_s
-    #   # '/c/' + params[:category] + '.json'
-    #   # pass_through_request conn, path
-    #   response = conn.get path
-    #   rb = JSON.parse response.body
-
-    #   if (response.status == 200) && rb["topic_list"]
-    #     return render json: { topic_list: rb["topic_list"],
-    #                           category: params[:category] }
-    #   else
-    #     return render json: {"error" => {"message" => "sorry, there has been an error"}}
-    #   end
-    # end
-
-
+    def create
+      uri = uri_from_url params[:host]
+      unless uri
+        return render_json_error "Invalid Url"
+      end
+      site_record = Drive::DiscourseSite.get_from_uri uri 
+      unless site_record
+        site_record = Drive::DiscourseSite.create_from_uri uri 
+      end
+      if site_record
+        return render json: site_record.as_json, root: false
+      else
+        return render_json_error "Unable to retrieve Discourse Site at this url"
+      end
+    end
 
     def get_sites
       # current_section = get_current_section
@@ -125,6 +81,14 @@ module Drive
 
     private
 
+    def uri_from_url param
+      uri = URI.parse(param)
+      if (uri && uri.host)
+        return uri
+      else 
+        return nil
+      end
+    end
 
     def host_from_params
       unless(params[:slug])
@@ -155,28 +119,28 @@ module Drive
       end
     end
 
-    def create_site_record site_info, section
-      section_meta = section.meta || { "sites" => [] }
-      uri = URI.parse site_info['host_url']
-      new_site = {}
-      binding.pry 
-      # Drive::DiscourseSite.where(:base_url => site_info['host_url']).first_or_initialize
-      # new_site["meta"] = site_info
-      new_site["slug"] = uri.hostname.gsub( ".","_")
-      new_site["display_name"] = site_info['title']
-      new_site["description"] = site_info['description']
-      new_site["logo_url"] = site_info['favicon_url']
+    # def create_site_record site_info, section
+    #   section_meta = section.meta || { "sites" => [] }
+    #   uri = URI.parse site_info['host_url']
+    #   new_site = {}
+    #   binding.pry 
+    #   # Drive::DiscourseSite.where(:base_url => site_info['host_url']).first_or_initialize
+    #   # new_site["meta"] = site_info
+    #   new_site["slug"] = uri.hostname.gsub( ".","_")
+    #   new_site["display_name"] = site_info['title']
+    #   new_site["description"] = site_info['description']
+    #   new_site["logo_url"] = site_info['favicon_url']
       
-      if section_meta["sites"]
-        section_meta["sites"].push new_site
-      else
-        section_meta["sites"] = [new_site]
-      end
-      section.meta = section_meta
-      section.save!
-      binding.pry
-      return new_site
-    end
+    #   if section_meta["sites"]
+    #     section_meta["sites"].push new_site
+    #   else
+    #     section_meta["sites"] = [new_site]
+    #   end
+    #   section.meta = section_meta
+    #   section.save!
+    #   binding.pry
+    #   return new_site
+    # end
 
   end
 end

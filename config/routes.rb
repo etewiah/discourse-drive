@@ -48,6 +48,10 @@ Drive::Engine.routes.draw do
   # get "/passthrough/categories" => "passthrough#categories"
   # get "/passthrough/topic_details" => "passthrough#topic_details"
 
+  post "discourse_sites/create" => "discourse_sites#create"
+  get "discourse_sites/create" => "discourse_sites#create"
+
+
   get "/discourse_sites/get_or_add_site" => "discourse_sites#get_or_add_site"
   get "/discourse_sites/get_sites" => "discourse_sites#get_sites"
   # get "/discourse_sites/passthrough" => "discourse_sites#passthrough"

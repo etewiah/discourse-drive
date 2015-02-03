@@ -4,10 +4,22 @@ module Drive
 
     serialize :meta, JSON
 
-    def self.create_from_url url
-      uri = URI.parse(url)
+    def self.get_from_uri uri
       # strip out any trailing parts
       base_url = "#{uri.scheme}://#{uri.host}"
+      slug = uri.host.gsub( ".","_")
+      site = Drive::DiscourseSite.where(:slug => slug).first
+      return site
+    rescue => e
+      Rails.logger.error { "Error while retrieving site from url, #{e.message} #{e.backtrace.join("\n")}" }
+      nil
+    end
+
+    def self.create_from_uri uri
+      # uri = URI.parse(url)
+      # strip out any trailing parts
+      base_url = "#{uri.scheme}://#{uri.host}"
+
       discourse_client = Drive::DiscourseClient.new base_url
       site_info = discourse_client.site_info
       if site_info["error"]
@@ -16,6 +28,9 @@ module Drive
         new_site = Drive::DiscourseSite.create_site_record site_info
         return new_site
       end
+    rescue => e
+      Rails.logger.error { "Error while creating site from url, #{e.message} #{e.backtrace.join("\n")}" }
+      nil
     end
 
     def self.create_site_record site_info
