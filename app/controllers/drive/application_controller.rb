@@ -40,13 +40,14 @@ module Drive
       return section_category
     end
 
-    def pass_through_request conn, path
+    def pass_through_request conn, path, errorMessage = "Sorry, there has been an error"
       response = conn.get path
       rb = response.body
       if response.status == 200
         return render json: response.body
       else
-        return render json: {"error" => {"message" => "sorry, there has been an error"}}
+        return render_json_error(errorMessage)
+        # render json: {"error" => {"message" => "sorry, there has been an error"}}
       end
     end
 

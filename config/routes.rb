@@ -49,7 +49,7 @@ Drive::Engine.routes.draw do
   # get "/passthrough/topic_details" => "passthrough#topic_details"
 
   post "discourse_sites/create" => "discourse_sites#create"
-  get "discourse_sites/create" => "discourse_sites#create"
+  # get "discourse_sites/create" => "discourse_sites#create"
 
 
   get "/discourse_sites/get_or_add_site" => "discourse_sites#get_or_add_site"
