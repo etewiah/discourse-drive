@@ -25,9 +25,9 @@ module Drive
 
     def show
       site = Drive::DiscourseSite.find(params[:id])
-      # site_serialized = serialize_data(site, Drive::DiscourseSite, :root => 'site')
-      # return  render_json_dump(site_serialized)
-      return render json: site.as_json
+      site_serialized = serialize_data(site, Drive::AdminDiscourseSiteSerializer, :root => false)
+      return  render_json_dump(site_serialized)
+      # return render json: site.as_json
     end
 
     def destroy
@@ -44,6 +44,10 @@ module Drive
       site.display_name = params[:display_name]
       site.slug = params[:slug]
       site.description = params[:description]
+      if params[:is_listed] && params[:is_listed] == "false"
+        # stupid temporary workaround
+        site.display_name = "hidden"
+      end
       if site.save!
         render json: site.as_json
       else
@@ -72,7 +76,10 @@ module Drive
 
     def all
       site_records = Drive::DiscourseSite.all
-      return render json: site_records.as_json, root: false
+      # return render json: site_records.as_json, root: false
+            site_serialized = serialize_data(site_records, Drive::AdminDiscourseSiteSerializer, :root => false)
+      return  render_json_dump(site_serialized)
+
     end
 
     # def passthrough
