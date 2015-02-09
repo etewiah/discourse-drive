@@ -1,15 +1,61 @@
 module Drive
   require 'current_user'
 
-  class DiscourseSitesController < Drive::ApplicationController
+  class DiscourseSitesAdminController < Drive::ApplicationController
     include CurrentUser
 
     layout false
-    # before_action :verify_host_param, except: [:get_or_add_site, :get_sites]
+
+    skip_before_filter :verify_authenticity_token, only: [:enter]
+
+    skip_before_filter :set_current_user_for_logs
+    skip_before_filter :set_locale
+    skip_before_filter :set_mobile_view
+    skip_before_filter :inject_preview_style
+    skip_before_filter :disable_customization
+    skip_before_filter :block_if_readonly_mode
+    skip_before_filter :authorize_mini_profiler
+    skip_before_filter :preload_json
+    skip_before_filter :check_xhr
+    # skip_before_filter :redirect_to_login_if_required
+
+
+    before_filter :ensure_admin
+    # , only: [:destroy]
+
+    def show
+      site = Drive::DiscourseSite.find(params[:id])
+      # site_serialized = serialize_data(site, Drive::DiscourseSite, :root => 'site')
+      # return  render_json_dump(site_serialized)
+      return render json: site.as_json
+    end
+
+    def destroy
+      site = Drive::DiscourseSite.find(params[:id])
+      if site.destroy!
+        render json: { success: 'OK' }
+      else
+        return render_json_error('Error deleting site')
+      end
+    end
+
+    def update
+      site = Drive::DiscourseSite.find(params[:id])
+      site.display_name = params[:display_name]
+      site.slug = params[:slug]
+      site.description = params[:description]
+      if site.save!
+        render json: site.as_json
+      else
+        return render_json_error('Error updating site')
+      end
+    end
+
+
+
 
     def create
-      host = params[:host] || params[:base_url]
-      uri = uri_from_url host
+      uri = uri_from_url params[:host]
       unless uri
         return render_json_error "Invalid Url"
       end
@@ -24,10 +70,8 @@ module Drive
       end
     end
 
-    def get_sites
-      # TODO -  better way of setting visibility
-      site_records = Drive::DiscourseSite.where.not('display_name' => 'hidden')
-      # Drive::DiscourseSite.all
+    def all
+      site_records = Drive::DiscourseSite.all
       return render json: site_records.as_json, root: false
     end
 

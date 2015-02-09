@@ -1,7 +1,7 @@
 Drive::Engine.routes.draw do
   # root to: 'section#landing'
 
-# should I have a current section controller?
+  # should I have a current section controller?
 
   get "/" => "section#landing"
   get "/d" => "section#landing"
@@ -19,7 +19,7 @@ Drive::Engine.routes.draw do
 
   get "/micro-forums" => "static#micro_forums"
 
-# below route is target for 'hidden-login-form'
+  # below route is target for 'hidden-login-form'
   post "/drive/section/login" => "section#enter"
   get "/drive/section/topics" => "section#topics"
 
@@ -31,22 +31,25 @@ Drive::Engine.routes.draw do
   get "/drive/section/directory" => "section#directory"
 
   post "/drive/section/create" => "section#create"
-# above only creates for the current section and user which can be passed in below:
+  # above only creates for the current section and user which can be passed in below:
   post "/drive/admin/section" => "admin#create_section"
-  post "/drive/admin/discette" => "admin#create_discette"
-  delete "/drive/admin/discette/:id" => "admin#destroy_discette"
   delete "/drive/admin/section/:id" => "admin#destroy_section"
   get "/drive/admin/sections" => "admin#all_sections" #currently includes discettes
   get "/drive/admin/section/:id" => "admin#show_section"
-  get "/drive/admin/discette/:id" => "admin#show_discette"
-
   put "/drive/admin/section/:id" => "admin#update_section"
+
+  post "/drive/admin/discette" => "admin#create_discette"
+  delete "/drive/admin/discette/:id" => "admin#destroy_discette"
+  get "/drive/admin/discette/:id" => "admin#show_discette"
   put "/drive/admin/discette/:id" => "admin#update_discette"
 
-  # get "/passthrough/latest" => "passthrough#latest"
-  # get "/passthrough/about" => "passthrough#about"
-  # get "/passthrough/categories" => "passthrough#categories"
-  # get "/passthrough/topic_details" => "passthrough#topic_details"
+  get "/drive/admin/sites" => "discourse_sites_admin#all" 
+  # post "/drive/admin/site" => "discourse_sites_admin#create_site"
+  # delete "/drive/admin/site/:id" => "discourse_sites_admin#destroy_site"
+  get "/drive/admin/site/:id" => "discourse_sites_admin#show"
+  put "/drive/admin/site/:id" => "discourse_sites_admin#update"
+
+
 
   post "discourse_sites/create" => "discourse_sites#create"
   # get "discourse_sites/create" => "discourse_sites#create"
