@@ -15,6 +15,8 @@ Drive::Engine.routes.draw do
 
   get "/reader" => "section#landing"
   get "/reader/*path" => "section#landing"
+  get "/reader-admin" => "section#landing"
+  get "/reader-admin/*path" => "section#landing"
 
 
   get "/micro-forums" => "static#micro_forums"
