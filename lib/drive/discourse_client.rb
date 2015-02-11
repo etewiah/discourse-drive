@@ -19,11 +19,13 @@ module Drive
       if about_response.status == 200
         about_json = (JSON.parse about_response.body)['about']
         
-        # below includes trailing slash
-        host_url = connection.url_prefix.to_s.downcase
+        base_url = connection.url_prefix.to_s.downcase
+        # remove trailing slash
+        if base_url.ends_with? "/" then base_url.chop! end
+
         hostname = connection.url_prefix.hostname.downcase
         about_json['slug'] = hostname.gsub( ".","_")
-        about_json['host_url'] = host_url
+        about_json['base_url'] = base_url
 
         # not entirely sure if below is worth doing just for icons....
         root_response = connection.get '/'

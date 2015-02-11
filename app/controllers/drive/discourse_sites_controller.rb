@@ -103,24 +103,24 @@ module Drive
     end
 
 
-    def remote_site_info conn
-      about_response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
-      rb = about_response.body
-      if about_response.status == 200
-        about_json = (JSON.parse about_response.body)['about']
-        about_json['host_url'] = conn.url_prefix.to_s.downcase
-        # params[:host]
-        root_response = conn.get '/'
-        page = Nokogiri::HTML(root_response.body)
-        favicon_url = page.css('link[rel="icon"]')[0].attributes['href'].value rescue nil
-        about_json['favicon_url'] = favicon_url
-        apple_touch_icon_url = page.css('link[rel="apple-touch-icon"]')[0].attributes['href'].value rescue nil
-        about_json['apple_touch_icon_url'] = apple_touch_icon_url
-        return about_json
-      else
-        return {"error" => {"message" => "sorry, there has been an error"}}
-      end
-    end
+    # def remote_site_info conn
+    #   about_response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
+    #   rb = about_response.body
+    #   if about_response.status == 200
+    #     about_json = (JSON.parse about_response.body)['about']
+    #     about_json['base_url'] = conn.url_prefix.to_s.downcase
+    #     # params[:host]
+    #     root_response = conn.get '/'
+    #     page = Nokogiri::HTML(root_response.body)
+    #     favicon_url = page.css('link[rel="icon"]')[0].attributes['href'].value rescue nil
+    #     about_json['favicon_url'] = favicon_url
+    #     apple_touch_icon_url = page.css('link[rel="apple-touch-icon"]')[0].attributes['href'].value rescue nil
+    #     about_json['apple_touch_icon_url'] = apple_touch_icon_url
+    #     return about_json
+    #   else
+    #     return {"error" => {"message" => "sorry, there has been an error"}}
+    #   end
+    # end
 
   end
 end

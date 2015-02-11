@@ -34,11 +34,10 @@ module Drive
     end
 
     def self.create_site_record site_info
-      # uri = URI.parse site_info['host_url']
+      # uri = URI.parse site_info['base_url']
       new_site = Drive::DiscourseSite.where(:slug => site_info['slug']).first_or_initialize
       new_site.meta = {}
-      # site_info
-      new_site.base_url = site_info['host_url']
+      new_site.base_url = site_info['base_url']
       new_site.slug = site_info['slug']
       new_site.display_name = site_info['title']
       new_site.description = site_info['description']
