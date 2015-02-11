@@ -46,7 +46,9 @@ module Drive
       site.description = params[:description]
       if params[:is_listed] && params[:is_listed] == "false"
         # stupid temporary workaround
-        site.display_name = "hidden"
+        site.listed = false
+      else
+        site.listed = true
       end
       if site.save!
         render json: site.as_json
@@ -63,9 +65,9 @@ module Drive
       unless uri
         return render_json_error "Invalid Url"
       end
-      site_record = Drive::DiscourseSite.get_from_uri uri 
+      site_record = Drive::DiscourseSite.get_from_uri uri
       unless site_record
-        site_record = Drive::DiscourseSite.create_from_uri uri 
+        site_record = Drive::DiscourseSite.create_from_uri uri
       end
       if site_record
         return render json: site_record.as_json, root: false
@@ -77,7 +79,7 @@ module Drive
     def all
       site_records = Drive::DiscourseSite.all
       # return render json: site_records.as_json, root: false
-            site_serialized = serialize_data(site_records, Drive::AdminDiscourseSiteSerializer, :root => false)
+      site_serialized = serialize_data(site_records, Drive::AdminDiscourseSiteSerializer, :root => false)
       return  render_json_dump(site_serialized)
 
     end
@@ -137,7 +139,7 @@ module Drive
       uri = URI.parse(param)
       if (uri && uri.host)
         return uri
-      else 
+      else
         return nil
       end
     end

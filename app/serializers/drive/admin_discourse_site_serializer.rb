@@ -2,7 +2,7 @@
 module Drive
   class AdminDiscourseSiteSerializer < ApplicationSerializer
     attributes :id, :display_name, 
-    :slug, :meta, 
+    :slug, :meta, :visible, :listed,
     :base_url, :description,
     :logo_url, :is_listed
 

@@ -26,9 +26,11 @@ module Drive
 
     def get_sites
       # TODO -  better way of setting visibility
-      site_records = Drive::DiscourseSite.where.not('display_name' => 'hidden')
-      # Drive::DiscourseSite.all
-      return render json: site_records.as_json, root: false
+      site_records = Drive::DiscourseSite.where('listed' => true)
+      # return render json: site_records.as_json, root: false
+      site_serialized = serialize_data(site_records, Drive::SummaryDiscourseSiteSerializer, :root => false)
+      return  render_json_dump(site_serialized)
+
     end
 
     # def passthrough
