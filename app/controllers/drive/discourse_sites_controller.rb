@@ -35,10 +35,10 @@ module Drive
 
     # def passthrough
     #   path = "/#{params[:target]}.json"
-    #   host = host_from_params
-    #   conn = get_connection host
+    #   site = site_from_params
+    # conn = get_connection host
     #   path = path
-    #   pass_through_request conn, path
+    #   pass_through_request site, path
     # end
 
     def latest
@@ -47,26 +47,26 @@ module Drive
       else
         path = "latest.json"
       end
-      host = host_from_params
-      conn = get_connection host
+      site = site_from_params
+      # conn = get_connection host
       path = path
-      pass_through_request conn, path
+      pass_through_request site, path
     end
 
 
 
     def about
-      host = host_from_params
-      conn = get_connection host
+      site = site_from_params
+      # conn = get_connection host
       path = "/about.json"
-      pass_through_request conn, path
+      pass_through_request site, path
     end
 
     def categories
-      host = host_from_params
-      conn = get_connection host
+      site = site_from_params
+      # conn = get_connection host
       path = "/categories.json"
-      pass_through_request conn, path
+      pass_through_request site, path
     end
 
 
@@ -75,11 +75,11 @@ module Drive
         return render_json_error 'Incorrect parameters'
       end
       # site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
-      host = host_from_params
-      conn = get_connection host
+      site = site_from_params
+      # conn = get_connection host
 
       path = '/t/' + params[:topic_id] + '.json'
-      pass_through_request conn, path
+      pass_through_request site, path
     end
 
     private
@@ -93,13 +93,13 @@ module Drive
       end
     end
 
-    def host_from_params
+    def site_from_params
       unless(params[:slug])
         return render_json_error "Incorrect parameters"
       end
 
       site_record = Drive::DiscourseSite.where(:slug => params[:slug]).first
-      host = site_record.base_url
+      # site = site_record.base_url
     end
 
 

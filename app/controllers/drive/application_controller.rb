@@ -40,13 +40,18 @@ module Drive
       return section_category
     end
 
-    def pass_through_request conn, path, errorMessage = "Sorry, there has been an error"
+    def pass_through_request site_record, path, error_message = "Sorry, there has been an error"
+      conn = get_connection site_record.base_url
       response = conn.get path
       rb = response.body
       if response.status == 200
-        return render json: response.body
+        toret =  JSON.parse response.body
+        site_serialized = serialize_data(site_record, Drive::SummaryDiscourseSiteSerializer, :root => false)
+        toret['site'] = site_serialized
+        # binding.pry
+        return render json: toret
       else
-        return render_json_error(errorMessage)
+        return render_json_error(error_message)
         # render json: {"error" => {"message" => "sorry, there has been an error"}}
       end
     end
