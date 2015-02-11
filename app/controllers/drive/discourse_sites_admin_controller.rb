@@ -44,8 +44,10 @@ module Drive
       site.display_name = params[:display_name]
       site.slug = params[:slug]
       site.description = params[:description]
+      if params[:base_url] 
+        site.base_url = params[:base_url]
+      end
       if params[:is_listed] && params[:is_listed] == "false"
-        # stupid temporary workaround
         site.listed = false
       else
         site.listed = true
