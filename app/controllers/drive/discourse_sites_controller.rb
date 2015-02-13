@@ -5,6 +5,9 @@ module Drive
     include CurrentUser
 
     skip_before_filter :verify_authenticity_token
+    # not sure why discourse base runs check_xhr but it results in 
+    # create returning empty ..
+    skip_before_filter :check_xhr, only: [:create]
 
     layout false
     # before_action :verify_host_param, except: [:get_or_add_site, :get_sites]
