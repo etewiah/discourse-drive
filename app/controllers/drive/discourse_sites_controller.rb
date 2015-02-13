@@ -4,6 +4,8 @@ module Drive
   class DiscourseSitesController < Drive::ApplicationController
     include CurrentUser
 
+    skip_before_filter :verify_authenticity_token
+
     layout false
     # before_action :verify_host_param, except: [:get_or_add_site, :get_sites]
 
